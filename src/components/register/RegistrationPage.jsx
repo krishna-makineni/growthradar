@@ -16,12 +16,36 @@ import {
   Check,
   RotateCcw,
   Ticket,
+  Download,
 } from "lucide-react";
 import { useGrowth } from "../../context/GrowthContext";
 import { ConfirmDialog } from "../common/Modal";
 
 export function RegistrationPage() {
   const { registerStudent, actualRegistrations, resetRegistrationsOnly } = useGrowth();
+
+  const handleExportCSV = () => {
+    if (!actualRegistrations || actualRegistrations.length === 0) return;
+    const headers = ["Registration ID", "Student Name", "Email", "Graduation Batch", "College / Institution", "Referral Code", "Source Channel", "Timestamp"];
+    const rows = actualRegistrations.map((r) => [
+      r.id,
+      `"${(r.name || "").replace(/"/g, '""')}"`,
+      r.normalizedEmail || r.email,
+      r.graduationYear,
+      `"${(r.college || "").replace(/"/g, '""')}"`,
+      r.referralCode || "DIRECT",
+      r.source || "direct_portal",
+      r.createdAt,
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `campus_growth_radar_registrations_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Parse query params if any (e.g. ?ref=AMB-PRIYA&source=coding_club)
   const getQueryParam = (param) => {
@@ -495,7 +519,7 @@ export function RegistrationPage() {
       {/* Recent Test Registrations Log (Demo Transparency) */}
       <div className="max-w-3xl mx-auto pt-6">
         <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1E2B45]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#1E2B45]">
             <div>
               <h4 className="text-xs font-bold text-[#F5F7FA] uppercase tracking-wider">
                 Locally Recorded Test Registrations ({actualRegistrations.length})
@@ -504,9 +528,20 @@ export function RegistrationPage() {
                 Persisted in browser localStorage • Directly updates the Overview KPI cards
               </p>
             </div>
-            <span className="text-[10px] font-mono text-[#51D6C7] bg-[#51D6C7]/10 px-2 py-0.5 rounded border border-[#51D6C7]/20">
-              Live Test Feed
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F1626] hover:bg-[#18253D] text-[#51D6C7] hover:text-[#B8F56A] text-xs font-semibold border border-[#1E2B45] transition-colors cursor-pointer"
+                title="Download all registrations as CSV file"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export CSV</span>
+              </button>
+              <span className="text-[10px] font-mono text-[#51D6C7] bg-[#51D6C7]/10 px-2 py-0.5 rounded border border-[#51D6C7]/20">
+                Live Test Feed
+              </span>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
