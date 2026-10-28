@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import {
-  Sparkles,
   Copy,
   Check,
-  Share2,
-  Sliders,
-  Send,
   Info,
   ShieldCheck,
   Lightbulb,
@@ -29,32 +25,28 @@ const TONES = [
 export function CopilotPage() {
   const [selectedAudience, setSelectedAudience] = useState("placement");
   const [selectedTone, setSelectedTone] = useState("outcome");
-  const [projectAngle, setProjectAngle] = useState("resume_agent");
   const [copiedIndex, setCopiedIndex] = useState(null);
 
   // Deterministic rule-based copy engine adhering to anti-hype guidelines
   const generateVariants = () => {
     if (selectedAudience === "placement") {
-      if (selectedTone === "outcome") {
-        return [
-          {
-            title: "Variant 1: Resume Differentiation Angle",
-            hypothesis: "Final-year students preparing for tech interviews prioritize tangible GitHub commits over conceptual webinars.",
-            text: `Hey everyone, for anyone preparing for upcoming placement drives:\n\nNxtWave is hosting a free 60-minute practical build lab: "Build Your First AI Project in 60 Minutes".\n\nInstead of watching presentation slides, you'll write and deploy a working AI Resume Analyzer using an LLM API live, and push the code directly to your GitHub profile.\n\n🗓 Saturday, 6:00 PM IST (60 mins)\n💻 Hands-on coding in cloud sandbox\n🔗 Reserve your seat: https://campusgrowth.nxtwave.in/register?source=placement_group`,
-          },
-          {
-            title: "Variant 2: Technical Interview Talking Point",
-            hypothesis: "Highlighting that interviewers specifically ask about GenAI project experience creates high intent.",
-            text: `Quick heads-up for 2025/2026 batchmates:\n\nIf you want a concrete AI project to talk through during technical interviews, NxtWave is running a 60-minute code-along session this weekend.\n\nYou'll learn how to connect an LLM API to structured data and build a working micro-app from scratch. Code templates and sandbox provided.\n\nFree registration: https://campusgrowth.nxtwave.in/register?source=placement_talk`,
-          },
-          {
-            title: "Variant 3: Concise 3-Bullet Circular",
-            hypothesis: "Short, skimmable messages reduce cognitive load and increase click-through rates in crowded placement groups.",
-            text: `📢 Placement Build Lab: Build Your First AI Project in 60 Mins\n\n• What: Write, test, and deploy a live LLM application\n• Who: 2025/2026 Engineering Students (All Branches)\n• Deliverable: Working code repository on your GitHub\n• Cost: Free\n\nRegistration link: https://campusgrowth.nxtwave.in/register?source=placement_bullets`,
-          },
-        ];
-      }
-      // other tones for placement...
+      return [
+        {
+          title: "Variant 1: Resume Differentiation Angle",
+          hypothesis: "Final-year students preparing for tech interviews prioritize tangible GitHub commits over conceptual webinars.",
+          text: `Hey everyone, for anyone preparing for upcoming placement drives:\n\nNxtWave is hosting a free 60-minute practical build lab: "Build Your First AI Project in 60 Minutes".\n\nInstead of watching presentation slides, you'll write and deploy a working AI Resume Analyzer using an LLM API live, and push the code directly to your GitHub profile.\n\n🗓 Saturday, 6:00 PM IST (60 mins)\n💻 Hands-on coding in cloud sandbox\n🔗 Reserve your seat: https://campusgrowth.nxtwave.in/register?source=placement_group`,
+        },
+        {
+          title: "Variant 2: Technical Interview Talking Point",
+          hypothesis: "Highlighting that interviewers specifically ask about GenAI project experience creates high intent.",
+          text: `Quick heads-up for 2025/2026 batchmates:\n\nIf you want a concrete AI project to talk through during technical interviews, NxtWave is running a 60-minute code-along session this weekend.\n\nYou'll learn how to connect an LLM API to structured data and build a working micro-app from scratch. Code templates and sandbox provided.\n\nFree registration: https://campusgrowth.nxtwave.in/register?source=placement_talk`,
+        },
+        {
+          title: "Variant 3: Concise 3-Bullet Circular",
+          hypothesis: "Short, skimmable messages reduce cognitive load and increase click-through rates in crowded placement groups.",
+          text: `📢 Placement Build Lab: Build Your First AI Project in 60 Mins\n\n• What: Write, test, and deploy a live LLM application\n• Who: 2025/2026 Engineering Students (All Branches)\n• Deliverable: Working code repository on your GitHub\n• Cost: Free\n\nRegistration link: https://campusgrowth.nxtwave.in/register?source=placement_bullets`,
+        },
+      ];
     }
 
     if (selectedAudience === "whatsapp") {
@@ -148,37 +140,37 @@ export function CopilotPage() {
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       {/* Header */}
-      <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-5 md:p-6 shadow-md">
+      <div className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl p-5 md:p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded bg-[#B8F56A]/10 text-[#B8F56A] border border-[#B8F56A]/20">
+              <span className="text-[10px] font-mono font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded bg-[#C5F56A]/10 text-[#C5F56A] border border-[#C5F56A]/25">
                 Growth Utility
               </span>
-              <span className="text-xs text-[#9BA8BB]">
+              <span className="text-xs text-[#A5B2C5]">
                 Transparent Prompt Heuristics
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-extrabold text-[#F5F7FA] tracking-tight">
+            <h1 className="font-heading text-xl md:text-2xl font-bold text-[#F5F7FB] tracking-tight">
               AI Campaign Copilot
             </h1>
-            <p className="text-xs md:text-sm text-[#9BA8BB] mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs md:text-sm text-[#A5B2C5] mt-1 max-w-2xl leading-relaxed">
               Generate battle-tested, high-converting outreach copy for WhatsApp groups, student ambassadors, and coding clubs.
               All messages adhere strictly to truth-in-advertising guidelines.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-[#51D6C7] bg-[#51D6C7]/10 px-3 py-1.5 rounded-lg border border-[#51D6C7]/20 self-start md:self-auto">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Rule-Based Growth Prompt Engine</span>
+          <div className="flex items-center gap-2 text-xs text-[#4ADFFF] bg-[#4ADFFF]/10 px-3 py-1.5 rounded-lg border border-[#4ADFFF]/25 self-start md:self-auto font-mono">
+            <ShieldCheck className="w-4 h-4 text-[#4ADFFF]" />
+            <span>Rule-Based Prompt Engine</span>
           </div>
         </div>
 
         {/* Ethical Copy Guidelines banner */}
-        <div className="mt-4 pt-3.5 border-t border-[#1E2B45]/70 flex items-start gap-2 text-xs text-[#9BA8BB]">
-          <Info className="w-4 h-4 text-[#51D6C7] shrink-0 mt-0.5" />
+        <div className="mt-4 pt-3.5 border-t border-[rgba(148,163,184,0.12)] flex items-start gap-2 text-xs text-[#A5B2C5]">
+          <Info className="w-4 h-4 text-[#4ADFFF] shrink-0 mt-0.5" />
           <span>
-            <strong className="text-[#F5F7FA]">Truth in Growth Advertising:</strong> All generated messages strictly avoid fake scarcity, unsupported placement guarantees, fabricated testimonials, or misleading attendance numbers.
+            <strong className="text-[#F5F7FB]">Truth in Growth Advertising:</strong> All generated suggestions strictly avoid fake scarcity, unsupported placement guarantees, fabricated testimonials, or misleading attendance claims.
           </span>
         </div>
       </div>
@@ -186,8 +178,8 @@ export function CopilotPage() {
       {/* Control Selector Bar */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Audience Choice */}
-        <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-4 space-y-2.5">
-          <label className="block text-xs font-bold text-[#F5F7FA] uppercase tracking-wider">
+        <div className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl p-4 space-y-2.5">
+          <label className="block text-[11px] font-mono font-semibold text-[#A5B2C5] uppercase tracking-wider">
             1. Target Campus Audience
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -196,10 +188,10 @@ export function CopilotPage() {
                 key={aud.id}
                 type="button"
                 onClick={() => setSelectedAudience(aud.id)}
-                className={`flex items-center gap-2 p-2.5 rounded-lg text-xs font-semibold transition-all text-left ${
+                className={`flex items-center gap-2 p-2.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
                   selectedAudience === aud.id
-                    ? "bg-[#18253D] text-[#B8F56A] border border-[#B8F56A]/40 shadow-sm"
-                    : "bg-[#0F1626] text-[#9BA8BB] hover:text-[#F5F7FA] border border-[#1E2B45]"
+                    ? "bg-[#C5F56A]/10 text-[#C5F56A] border border-[#C5F56A]/35 shadow-sm"
+                    : "bg-[#0A1020] text-[#A5B2C5] hover:text-[#F5F7FB] border border-[rgba(148,163,184,0.14)]"
                 }`}
               >
                 <span>{aud.icon}</span>
@@ -210,8 +202,8 @@ export function CopilotPage() {
         </div>
 
         {/* Tone Choice */}
-        <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-4 space-y-2.5">
-          <label className="block text-xs font-bold text-[#F5F7FA] uppercase tracking-wider">
+        <div className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl p-4 space-y-2.5">
+          <label className="block text-[11px] font-mono font-semibold text-[#A5B2C5] uppercase tracking-wider">
             2. Strategic Messaging Tone
           </label>
           <div className="space-y-1.5">
@@ -220,10 +212,10 @@ export function CopilotPage() {
                 key={tone.id}
                 type="button"
                 onClick={() => setSelectedTone(tone.id)}
-                className={`w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition-all text-left ${
+                className={`w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
                   selectedTone === tone.id
-                    ? "bg-[#18253D] text-[#51D6C7] border border-[#51D6C7]/40 shadow-sm"
-                    : "bg-[#0F1626] text-[#9BA8BB] hover:text-[#F5F7FA] border border-[#1E2B45]"
+                    ? "bg-[#4ADFFF]/10 text-[#4ADFFF] border border-[#4ADFFF]/35 shadow-sm"
+                    : "bg-[#0A1020] text-[#A5B2C5] hover:text-[#F5F7FB] border border-[rgba(148,163,184,0.14)]"
                 }`}
               >
                 <span>{tone.label}</span>
@@ -235,8 +227,8 @@ export function CopilotPage() {
       </div>
 
       {/* Generated Message Variants Grid */}
-      <div className="space-y-4">
-        <h2 className="text-xs font-bold text-[#9BA8BB] uppercase tracking-wider">
+      <div className="space-y-3.5">
+        <h2 className="text-[11px] font-mono font-semibold text-[#A5B2C5] uppercase tracking-wider">
           Generated High-Converting Message Variations (3 Variants):
         </h2>
 
@@ -244,28 +236,28 @@ export function CopilotPage() {
           {variants.map((variant, idx) => (
             <div
               key={idx}
-              className="bg-[#121A2B] border border-[#1E2B45] hover:border-[#2B3A58] rounded-xl p-5 flex flex-col justify-between shadow-md transition-all space-y-4"
+              className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] hover:border-[rgba(148,163,184,0.28)] rounded-xl p-5 flex flex-col justify-between shadow-sm transition-all space-y-4"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#B8F56A] uppercase tracking-wider">
+                  <span className="font-heading text-xs font-bold text-[#C5F56A] uppercase tracking-wider">
                     {variant.title}
                   </span>
-                  <span className="text-[10px] text-[#64748B]">
+                  <span className="text-[10px] font-mono text-[#64748B]">
                     {variant.text.length} chars
                   </span>
                 </div>
 
                 {/* Growth Hypothesis */}
-                <div className="p-2.5 rounded-lg bg-[#0F1626] border border-[#1E2B45] flex items-start gap-2 text-xs">
-                  <Lightbulb className="w-3.5 h-3.5 text-[#FACC15] shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-[#9BA8BB] leading-normal italic">
+                <div className="p-2.5 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.12)] flex items-start gap-2 text-xs">
+                  <Lightbulb className="w-3.5 h-3.5 text-[#FB923C] shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-[#A5B2C5] leading-normal italic">
                     {variant.hypothesis}
                   </p>
                 </div>
 
                 {/* Message Body */}
-                <div className="p-3.5 rounded-xl bg-[#0F1626] border border-[#1E2B45] text-xs font-sans text-[#F5F7FA] whitespace-pre-wrap leading-relaxed select-all">
+                <div className="p-3.5 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.12)] text-xs font-sans text-[#F5F7FB] whitespace-pre-wrap leading-relaxed select-all">
                   {variant.text}
                 </div>
               </div>
@@ -274,16 +266,16 @@ export function CopilotPage() {
               <button
                 type="button"
                 onClick={() => handleCopy(variant.text, idx)}
-                className="w-full py-2 rounded-lg bg-[#182238] hover:bg-[#1E2B45] text-xs font-bold text-[#F5F7FA] border border-[#1E2B45] hover:border-[#B8F56A]/50 transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2 rounded-lg bg-[#111C2E] hover:bg-[#18253D] text-xs font-semibold text-[#F5F7FB] border border-[rgba(148,163,184,0.16)] hover:border-[#C5F56A]/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {copiedIndex === idx ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-[#B8F56A]" />
-                    <span className="text-[#B8F56A]">Copied to Clipboard!</span>
+                    <Check className="w-3.5 h-3.5 text-[#C5F56A]" />
+                    <span className="text-[#C5F56A]">Copied to Clipboard!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-[#9BA8BB]" />
+                    <Copy className="w-3.5 h-3.5 text-[#A5B2C5]" />
                     <span>Copy Message Template</span>
                   </>
                 )}

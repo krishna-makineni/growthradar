@@ -1,31 +1,39 @@
 /**
  * Campus Growth Radar - Calculation & Scoring Engine
- * Centralized, transparent growth formulas.
+ * Centralized, transparent growth formulas adhering to strict data integrity.
  */
 
 /**
  * Calculate full growth projections from simulator parameters
  */
-export function calculateSimulatorProjections(params, target = 500) {
-  const communityReach = Number(params.communityReach) || 0;
-  const communityConv = Number(params.communityConv) || 0;
-  const communityCost = Number(params.communityCost) || 0;
+export function calculateSimulatorProjections(params = {}, target = 500, contextData = {}) {
+  const targetRegistrations = Math.max(1, Number(target || params?.targetRegistrations) || 500);
 
-  const ambassadorsCount = Number(params.ambassadorsCount) || 0;
-  const regsPerAmbassador = Number(params.regsPerAmbassador) || 0;
-  const ambassadorCost = Number(params.ambassadorCost) || 0;
+  const communityReach = Math.max(0, Number(params?.communityReach) || 0);
+  const communityConv = Math.min(Math.max(0, Number(params?.communityConv) || 0), 1);
+  const communityCost = Math.max(0, Number(params?.communityCost) || 0);
 
-  const organicReach = Number(params.organicReach) || 0;
-  const organicConv = Number(params.organicConv) || 0;
-  const organicCost = Number(params.organicCost) || 0;
+  const ambassadorsCount = Math.max(0, Number(params?.ambassadorsCount) || 0);
+  const regsPerAmbassador = Math.max(0, Number(params?.regsPerAmbassador) || 0);
+  const ambassadorCost = Math.max(0, Number(params?.ambassadorCost) || 0);
 
-  const directReach = Number(params.directOutreachReach) || 0;
-  const directConv = Number(params.directConv) || 0;
-  const directCost = Number(params.directCost) || 0;
+  const organicReach = Math.max(0, Number(params?.organicReach) || 0);
+  const organicConv = Math.min(Math.max(0, Number(params?.organicConv) || 0), 1);
+  const organicCost = Math.max(0, Number(params?.organicCost) || 0);
 
-  const overlapRate = Math.min(Math.max(Number(params.overlapRate) || 0, 0), 0.6); // clamp 0-60%
-  const totalBudget = Number(params.budget) || 2000;
-  const campaignDays = Number(params.campaignDays) || 7;
+  const directReach = Math.max(0, Number(params?.directOutreachReach) || 0);
+  const directConv = Math.min(Math.max(0, Number(params?.directConv) || 0), 1);
+  const directCost = Math.max(0, Number(params?.directCost) || 0);
+
+  const rawOverlap = Number(params?.overlapRate);
+  const overlapRate = Number.isFinite(rawOverlap) ? Math.min(Math.max(rawOverlap, 0), 0.6) : 0.13;
+  const totalBudget = Math.max(0, Number(params?.budget) || 2000);
+  const totalCampaignDays = Math.max(1, Number(contextData?.totalCampaignDays || params?.campaignDays) || 7);
+  const daysRemaining = contextData?.daysRemaining !== undefined
+    ? Math.max(0, Number(contextData.daysRemaining))
+    : (params?.daysRemaining !== undefined
+      ? Math.max(0, Number(params.daysRemaining))
+      : Math.max(1, Number(params?.campaignDays) || 7));
 
   // Gross channel registrations
   const grossCommunity = Math.round(communityReach * communityConv);
@@ -35,82 +43,182 @@ export function calculateSimulatorProjections(params, target = 500) {
 
   const totalGross = grossCommunity + grossAmbassador + grossOrganic + grossDirect;
 
-  // Overlap deduplication: Unique = Gross * (1 - overlapRate)
+  // Overlap deduplication: Unique = round(Gross * (1 - overlapRate))
+  // Accounts for students in multiple overlapping groups (coding club + class chat)
   const projectedUnique = Math.round(totalGross * (1 - overlapRate));
-  const deduplicatedOverlap = totalGross - projectedUnique;
+  const deduplicatedOverlap = Math.max(0, totalGross - projectedUnique);
 
-  // Gap and progress
-  const gap = Math.max(0, target - projectedUnique);
-  const percentage = target > 0 ? Math.min(Number(((projectedUnique / target) * 100).toFixed(1)), 250) : 0;
+  // Actual unique registrations & Actual registrations remaining
+  const actualCount = Array.isArray(contextData?.actualRegistrations)
+    ? contextData.actualRegistrations.length
+    : (typeof contextData?.actualRegistrations === 'number' ? contextData.actualRegistrations : 0);
+  const actualRegistrationsRemaining = Math.max(0, targetRegistrations - actualCount);
+
+  // Forecast gap & completion
+  const forecastGap = Math.max(0, targetRegistrations - projectedUnique);
+  const gap = forecastGap; // backwards compatibility
+  const forecastCompletion = targetRegistrations > 0
+    ? Number(((projectedUnique / targetRegistrations) * 100).toFixed(1))
+    : 0;
+  const percentage = forecastCompletion; // backwards compatibility
 
   // Budget calculations
   const totalAllocatedBudget = communityCost + ambassadorCost + organicCost + directCost;
   const budgetRemaining = totalBudget - totalAllocatedBudget;
-  const blendedCAC = projectedUnique > 0 ? Number((totalAllocatedBudget / projectedUnique).toFixed(2)) : 0;
 
-  // Daily velocity
-  const dailyRunRateRequired = Number((target / campaignDays).toFixed(1));
-  const dailyRunRateProjected = Number((projectedUnique / campaignDays).toFixed(1));
+  // Unit Economics / Cost per Registration
+  // 1. Forecast CAC = Forecast spend ÷ projected unique
+  const forecastCAC = projectedUnique > 0
+    ? Number((totalAllocatedBudget / projectedUnique).toFixed(2))
+    : "N/A";
 
-  // Channel breakdown with deduplicated proportion
+  // 2. Target CAC = Total campaign budget ÷ target registrations
+  const targetCAC = targetRegistrations > 0
+    ? Number((totalBudget / targetRegistrations).toFixed(2))
+    : "N/A";
+
+  // 3. Actual CAC = Actual campaign spend ÷ actual unique registrations
+  const rawActualSpend = contextData?.actualSpend;
+  const actualSpend = rawActualSpend !== undefined && rawActualSpend !== null ? Number(rawActualSpend) : null;
+  let actualCAC = "N/A";
+  if (actualCount > 0 && actualSpend !== null && !isNaN(actualSpend)) {
+    actualCAC = actualSpend === 0 ? "₹0.00" : Number((actualSpend / actualCount).toFixed(2));
+  }
+  const blendedCAC = typeof forecastCAC === 'number' ? forecastCAC : 0;
+
+  // Pacing calculations
+  // 1. Original target pace = target ÷ total campaign days
+  const originalTargetPace = totalCampaignDays > 0
+    ? Number((targetRegistrations / totalCampaignDays).toFixed(1))
+    : 0;
+
+  // 2. Required daily pace = registrations remaining ÷ campaign days remaining
+  let requiredDailyPace = "N/A";
+  if (actualRegistrationsRemaining === 0) {
+    requiredDailyPace = 0; // Goal achieved
+  } else if (daysRemaining > 0) {
+    requiredDailyPace = Number((actualRegistrationsRemaining / daysRemaining).toFixed(1));
+  }
+
+  // 3. Projected daily run rate = projected unique ÷ total campaign days
+  const projectedDailyRunRate = totalCampaignDays > 0
+    ? Number((projectedUnique / totalCampaignDays).toFixed(1))
+    : 0;
+
+  const dailyRunRateRequired = typeof requiredDailyPace === 'number' ? requiredDailyPace : originalTargetPace;
+  const dailyRunRateProjected = projectedDailyRunRate;
+
+  // Channel breakdown with deduplicated proportion and distinct channel profiles
   const channels = [
     {
+      id: "clubs",
       name: "Partner Student Clubs",
+      category: "Student Clubs",
       gross: grossCommunity,
       unique: Math.round(grossCommunity * (1 - overlapRate)),
       reach: communityReach,
+      reachLabel: `${communityReach.toLocaleString()} students`,
       convRate: (communityConv * 100).toFixed(1) + "%",
+      rawConv: communityConv,
       cost: communityCost,
-      cac: grossCommunity > 0 ? (communityCost / grossCommunity).toFixed(2) : "0",
-      color: "#B8F56A", // lime
+      cac: grossCommunity > 0 ? Number((communityCost / grossCommunity).toFixed(2)) : 0,
+      uniqueCac: Math.round(grossCommunity * (1 - overlapRate)) > 0
+        ? Number((communityCost / Math.round(grossCommunity * (1 - overlapRate))).toFixed(2))
+        : 0,
+      accessStatus: "Approved (5 Campuses)",
+      confidence: "High",
+      assumptionNote: "Historical student club partnership performance benchmark",
+      color: "#C5F56A",
     },
     {
+      id: "ambassadors",
       name: "Campus Ambassadors",
+      category: "Campus Ambassadors",
+      repsCount: ambassadorsCount,
+      regsPerRep: regsPerAmbassador,
       gross: grossAmbassador,
       unique: Math.round(grossAmbassador * (1 - overlapRate)),
-      reach: ambassadorsCount * 60, // estimated impressions per ambassador
-      convRate: `${regsPerAmbassador} regs/amb`,
+      reach: ambassadorsCount * 60,
+      reachLabel: `${ambassadorsCount} reps (${ambassadorsCount * 60} network reach)`,
+      convRate: `${regsPerAmbassador} regs/rep`,
       cost: ambassadorCost,
-      cac: grossAmbassador > 0 ? (ambassadorCost / grossAmbassador).toFixed(2) : "0",
-      color: "#51D6C7", // teal
+      cac: grossAmbassador > 0 ? Number((ambassadorCost / grossAmbassador).toFixed(2)) : 0,
+      uniqueCac: Math.round(grossAmbassador * (1 - overlapRate)) > 0
+        ? Number((ambassadorCost / Math.round(grossAmbassador * (1 - overlapRate))).toFixed(2))
+        : 0,
+      accessStatus: "Active (12 verified student reps)",
+      confidence: "High",
+      assumptionNote: "Peer-to-peer referral incentives with ₹50 milestone reward",
+      color: "#4ADFFF",
     },
     {
+      id: "organic",
       name: "Organic & Content",
+      category: "Organic & Content",
       gross: grossOrganic,
       unique: Math.round(grossOrganic * (1 - overlapRate)),
       reach: organicReach,
+      reachLabel: `${organicReach.toLocaleString()} impressions`,
       convRate: (organicConv * 100).toFixed(1) + "%",
+      rawConv: organicConv,
       cost: organicCost,
-      cac: grossOrganic > 0 ? (organicCost / grossOrganic).toFixed(2) : "0",
-      color: "#A78BFA", // purple
+      cac: grossOrganic > 0 ? Number((organicCost / grossOrganic).toFixed(2)) : 0,
+      uniqueCac: Math.round(grossOrganic * (1 - overlapRate)) > 0
+        ? Number((organicCost / Math.round(grossOrganic * (1 - overlapRate))).toFixed(2))
+        : 0,
+      accessStatus: "Published (LinkedIn & Discord)",
+      confidence: "Medium",
+      assumptionNote: "Organic student developer impressions across Discord & LinkedIn",
+      color: "#C084FC",
     },
     {
+      id: "direct",
       name: "Class CR Direct Outreach",
+      category: "Class Representative Outreach",
       gross: grossDirect,
       unique: Math.round(grossDirect * (1 - overlapRate)),
       reach: directReach,
+      reachLabel: `${directReach.toLocaleString()} students`,
       convRate: (directConv * 100).toFixed(1) + "%",
+      rawConv: directConv,
       cost: directCost,
-      cac: grossDirect > 0 ? (directCost / grossDirect).toFixed(2) : "0",
-      color: "#FACC15", // amber
+      cac: grossDirect > 0 ? Number((directCost / grossDirect).toFixed(2)) : 0,
+      uniqueCac: Math.round(grossDirect * (1 - overlapRate)) > 0
+        ? Number((directCost / Math.round(grossDirect * (1 - overlapRate))).toFixed(2))
+        : 0,
+      accessStatus: "Partially Approved (3 approved, 2 pending)",
+      confidence: "High",
+      assumptionNote: "Official departmental WhatsApp circulars via verified Class CRs",
+      color: "#FB923C",
     },
   ];
 
   // Feasibility status evaluation
   let feasibilityStatus = "feasible";
-  let statusHeadline = "Target Appears Feasible";
-  let statusMessage = "Current assumptions yield 500+ unique registrations within ₹2,000 budget.";
+  let statusHeadline = "Target Forecast Supported";
+  let statusMessage = "";
 
-  if (projectedUnique < 440 || budgetRemaining < 0) {
+  if (budgetRemaining < 0) {
+    feasibilityStatus = "falls_short";
+    statusHeadline = "Budget Cap Exceeded";
+    statusMessage = `Allocated spend (₹${totalAllocatedBudget}) exceeds total budget of ₹${totalBudget} by ₹${Math.abs(budgetRemaining)}. Optimize channel spending or reduce non-performing allocations.`;
+  } else if (projectedUnique < targetRegistrations * 0.85) {
     feasibilityStatus = "falls_short";
     statusHeadline = "Current Plan Falls Short";
-    statusMessage = budgetRemaining < 0
-      ? `Budget exceeded by ₹${Math.abs(budgetRemaining)}. Need to optimize channel CAC or reduce non-performing spend.`
-      : `Forecast projects ${projectedUnique} registrations (${gap} short of 500 target). Need additional reach or conversion lift.`;
-  } else if (projectedUnique < 500) {
+    statusMessage = `Forecast models ${projectedUnique} unique registrations (${forecastGap} short of ${targetRegistrations} target). To close the deficit, recruit additional ambassadors (currently ${ambassadorsCount}) or expand partner club reach.`;
+  } else if (projectedUnique < targetRegistrations) {
     feasibilityStatus = "requires_stronger";
     statusHeadline = "Requires Stronger Assumptions";
-    statusMessage = `Projected at ${projectedUnique} registrations (${gap} short). Vulnerable to minor channel underperformance.`;
+    statusMessage = `Projected at ${projectedUnique} registrations (${forecastGap} short of ${targetRegistrations}). Vulnerable to minor channel friction or conversion drops.`;
+  } else {
+    feasibilityStatus = "feasible";
+    if (projectedUnique > targetRegistrations * 1.35) {
+      statusHeadline = `Optimistic Scenario (${projectedUnique} Regs)`;
+      statusMessage = `Forecast exceeds target by +${projectedUnique - targetRegistrations} registrations. This models high conversion (${(communityConv * 100).toFixed(1)}% club, ${(directConv * 100).toFixed(1)}% CR) and low ${Math.round(overlapRate * 100)}% overlap. Note: This is an analytical scenario, not a guaranteed outcome.`;
+    } else {
+      statusHeadline = "Target Forecast Supported";
+      statusMessage = `Current balanced assumptions model ${projectedUnique} unique registrations (+${projectedUnique - targetRegistrations} buffer above ${targetRegistrations} target) within the ₹${totalBudget} budget constraint.`;
+    }
   }
 
   // Sensitivity analysis (impact of +- 20% conversion variance)
@@ -130,11 +238,26 @@ export function calculateSimulatorProjections(params, target = 500) {
     totalGross,
     projectedUnique,
     deduplicatedOverlap,
+    overlapRate,
+    targetRegistrations,
     gap,
+    forecastGap,
+    actualCount,
+    actualRegistrationsRemaining,
     percentage,
+    forecastCompletion,
+    totalBudget,
     totalAllocatedBudget,
     budgetRemaining,
+    forecastCAC,
+    targetCAC,
+    actualCAC,
     blendedCAC,
+    totalCampaignDays,
+    daysRemaining,
+    originalTargetPace,
+    requiredDailyPace,
+    projectedDailyRunRate,
     dailyRunRateRequired,
     dailyRunRateProjected,
     channels,
@@ -148,14 +271,14 @@ export function calculateSimulatorProjections(params, target = 500) {
 /**
  * Transparent scoring formula for student communities
  */
-export function calculateCommunityScore(community) {
-  const reachable = Number(community.reachableAudience) || 0;
-  const convRate = Number(community.conversionRate) || 0;
-  const effortHours = Math.max(Number(community.effortHours) || 1, 0.5);
-  const cost = Number(community.cost) || 0;
+export function calculateCommunityScore(community = {}) {
+  const reachable = Math.max(0, Number(community.reachableAudience) || 0);
+  const convRate = Math.min(Math.max(0, Number(community.conversionRate) || 0), 1);
+  const effortHours = Math.max(0.5, Number(community.effortHours) || 1);
+  const cost = Math.max(0, Number(community.cost) || 0);
 
   const expectedRegs = Math.round(reachable * convRate);
-  const regsPerHour = Number((expectedRegs / effortHours).toFixed(1));
+  const regsPerHour = effortHours > 0 ? Number((expectedRegs / effortHours).toFixed(1)) : 0;
   const costPerReg = expectedRegs > 0 ? Number((cost / expectedRegs).toFixed(1)) : 0;
 
   // Confidence multiplier
@@ -163,7 +286,7 @@ export function calculateCommunityScore(community) {
     High: 1.0,
     Medium: 0.75,
     Low: 0.5,
-  }[community.confidence] || 0.7;
+  }[community.confidence] || 0.75;
 
   // Access status multiplier
   const accessMultiplier = {
@@ -194,7 +317,6 @@ export function calculateCommunityScore(community) {
   const confidencePoints = confidenceMultiplier * 5;
 
   const rawScore = (volumePoints + velocityPoints + costPoints + accessPoints + confidencePoints);
-  // Modulate by access & confidence
   const priorityScore = Math.min(Math.max(Math.round(rawScore * (0.6 + 0.4 * accessMultiplier * confidenceMultiplier)), 5), 98);
 
   // Score breakdown explanation
@@ -211,6 +333,15 @@ export function calculateCommunityScore(community) {
     reason = "Balanced channel: Good incremental contributor to the 500 registration target.";
   }
 
+  // Context-aware Next Action
+  const nextAction = community.nextAction || {
+    approved: "Deploy outcome-focused teaser copy to community leads.",
+    permission_requested: "Follow up with club coordinators; share 60-second video demo preview.",
+    contact_identified: "Draft formal collaboration outreach to student coordinator.",
+    uncontacted: "Identify active batch CR or student developer club lead.",
+    unavailable: "Bypass channel; redirect allocated outreach hours to peer ambassador DMs.",
+  }[community.accessStatus] || "Evaluate channel potential.";
+
   return {
     expectedRegs,
     regsPerHour,
@@ -226,17 +357,18 @@ export function calculateCommunityScore(community) {
       confidencePoints: Math.round(confidencePoints),
     },
     reason,
+    nextAction,
   };
 }
 
 /**
  * A/B Test calculation with statistical significance and sample size checks
  */
-export function calculateExperimentStats(exp) {
-  const nA = Number(exp.sampleSizeA) || 0;
-  const nB = Number(exp.sampleSizeB) || 0;
-  const cA = Number(exp.conversionsA) || 0;
-  const cB = Number(exp.conversionsB) || 0;
+export function calculateExperimentStats(exp = {}) {
+  const nA = Math.max(0, Number(exp.sampleSizeA) || 0);
+  const nB = Math.max(0, Number(exp.sampleSizeB) || 0);
+  const cA = Math.max(0, Number(exp.conversionsA) || 0);
+  const cB = Math.max(0, Number(exp.conversionsB) || 0);
 
   const rateA = nA > 0 ? (cA / nA) : 0;
   const rateB = nB > 0 ? (cB / nB) : 0;
@@ -264,7 +396,6 @@ export function calculateExperimentStats(exp) {
 
       if (se > 0) {
         const z = (rateB - rateA) / se;
-        // Approximation of two-tailed p-value from z
         const absZ = Math.abs(z);
         if (absZ >= 2.58) pValueEstimate = "p < 0.01";
         else if (absZ >= 1.96) pValueEstimate = "p < 0.05";
@@ -287,7 +418,7 @@ export function calculateExperimentStats(exp) {
     rateA: (rateA * 100).toFixed(2),
     rateB: (rateB * 100).toFixed(2),
     absLift: (absLift * 100).toFixed(2),
-    relLift: relLift.toFixed(1),
+    relLift: Number.isFinite(relLift) ? relLift.toFixed(1) : "0.0",
     hasAdequateSample,
     hasData,
     significance,
@@ -298,74 +429,159 @@ export function calculateExperimentStats(exp) {
 }
 
 /**
- * Dynamic Recommended Next Action engine
+ * Dynamic Recommended Next Action engine responding to real state
  */
-export function generateRecommendedNextAction(state) {
-  const { simulatorParams, communities, actualRegistrations, missions } = state;
-  const actualCount = actualRegistrations ? actualRegistrations.length : 0;
-  const projections = calculateSimulatorProjections(simulatorParams);
+export function generateRecommendedNextAction(state = {}) {
+  const { simulatorParams, communities, actualRegistrations, missions, targetRegistrations = 500, projections: passedProjections } = state;
+  const actualCount = Array.isArray(actualRegistrations) ? actualRegistrations.length : (typeof actualRegistrations === "number" ? actualRegistrations : 0);
+  const projections = passedProjections || calculateSimulatorProjections(simulatorParams, targetRegistrations, { actualRegistrations });
 
-  // Check for blocked missions
+  // 1. Target Goal Already Achieved
+  if (actualCount >= targetRegistrations) {
+    return {
+      action: "Shift Focus to Live Workshop Attendance & Setup Readiness",
+      why: `Target goal achieved with ${actualCount} verified registrations. Further acquisition yields diminishing returns; priority shifts to maximizing attendance show-up rate on workshop day.`,
+      supportingData: `Verified registrations: ${actualCount} / ${targetRegistrations} target | Registrations remaining: 0 | Pace required: 0/day`,
+      estimatedImpact: "Drives live attendance from industry benchmark 42% to >65%",
+      effortCost: "4 hrs preparation • ₹0 additional spend",
+      metricToMeasure: "Pre-workshop setup verification link click-through rate >= 70%",
+      reconsiderCondition: "If actual cancellations or invalid student emails exceed 10%.",
+      urgency: "normal",
+      targetTab: "register",
+      actionButtonText: "Inspect Registrations",
+    };
+  }
+
+  // 2. Critical Execution Blockers
   const blockedMission = missions?.find((m) => m.status === "blocked");
   if (blockedMission) {
     return {
       action: `Unblock Critical Mission: ${blockedMission.title}`,
-      why: `The mission '${blockedMission.title}' is currently blocked, threatening the campaign execution timeline.`,
+      why: `The mission '${blockedMission.title}' is currently blocked, jeopardizing the 7-day sprint execution velocity.`,
       supportingData: `Assigned to: ${blockedMission.owner} | Channel: ${blockedMission.channel} | Cost: ₹${blockedMission.cost}`,
-      metricToMeasure: "Mission status changed to In Progress or Completed within 12 hours",
-      reconsiderCondition: "Once the blocker is resolved or mission is reassigned.",
+      estimatedImpact: "+40 to +60 Registrations preserved upon unblocking (Est.)",
+      effortCost: `${blockedMission.effortHours} hrs effort • ₹${blockedMission.cost} budget`,
+      metricToMeasure: "Mission status advanced to In Progress or Completed within 12 hours",
+      reconsiderCondition: "Once the blocker is cleared or task is reassigned.",
       urgency: "high",
+      targetTab: "missions",
+      actionButtonText: "View in Missions",
     };
   }
 
-  // Check if unapproved communities with high reach exist
+  // 3. Budget Overrun Remediation
+  if (projections.budgetRemaining < 0) {
+    return {
+      action: `Reallocate Spend to Correct ₹${Math.abs(projections.budgetRemaining)} Budget Overrun`,
+      why: `Allocated spend (₹${projections.totalAllocatedBudget}) exceeds total budget cap of ₹${simulatorParams?.budget || 2000}. Reallocating to lower-cost organic channels is required.`,
+      supportingData: `Allocated spend: ₹${projections.totalAllocatedBudget} | Total budget: ₹${projections.totalBudget} | Deficit: ₹${Math.abs(projections.budgetRemaining)}`,
+      estimatedImpact: "Brings campaign back to ₹2,000 budget compliance without cutting reach",
+      effortCost: "2 hrs planning • ₹0 cost",
+      metricToMeasure: "Budget remaining >= ₹0 across active channel allocations",
+      reconsiderCondition: "Once spending is reconciled under ₹2,000.",
+      urgency: "high",
+      targetTab: "simulator",
+      actionButtonText: "Adjust in Simulator",
+    };
+  }
+
+  // 4. Critical Pacing Deficit (e.g. Failure Lab time crunch or slow initial velocity)
+  if (typeof projections.requiredDailyPace === "number" && projections.daysRemaining > 0 && projections.requiredDailyPace > projections.originalTargetPace * 1.15) {
+    return {
+      action: `Accelerate Acquisition Velocity: Required Pace at ${projections.requiredDailyPace}/Day`,
+      why: `With ${projections.daysRemaining} days remaining, required pace is ${projections.requiredDailyPace} regs/day (vs planned ${projections.originalTargetPace}/day). Immediate multichannel activation required to close the ${projections.actualRegistrationsRemaining} registration gap.`,
+      supportingData: `Remaining needed: ${projections.actualRegistrationsRemaining} | Days left: ${projections.daysRemaining} | Required daily pace: ${projections.requiredDailyPace}/day`,
+      estimatedImpact: `Closes pacing deficit to recover on-track trajectory towards ${targetRegistrations}`,
+      effortCost: "6 hrs multi-channel push • ₹200 incentive bonus",
+      metricToMeasure: `Daily unique registration velocity reaches >= ${projections.requiredDailyPace} within 24 hours`,
+      reconsiderCondition: "Once cumulative pace returns within 10% of target trajectory.",
+      urgency: "high",
+      targetTab: "simulator",
+      actionButtonText: "Tune in Simulator",
+    };
+  }
+
+  // 5. High-Yield Pending Communities
   const pendingHighValue = communities?.filter(
     (c) => (c.accessStatus === "permission_requested" || c.accessStatus === "contact_identified") && c.reachableAudience >= 800
   );
 
   if (pendingHighValue && pendingHighValue.length > 0) {
     const topPending = pendingHighValue[0];
+    const estRegs = Math.round(topPending.reachableAudience * topPending.conversionRate);
     return {
       action: `Expedite Access Approval for ${topPending.name}`,
-      why: "This community represents high-potential reachable volume but remains in pending access status.",
-      supportingData: `${topPending.reachableAudience} reachable students | Estimated ${Math.round(topPending.reachableAudience * topPending.conversionRate)} registrations | Est. CAC ₹${(topPending.cost / Math.max(1, topPending.reachableAudience * topPending.conversionRate)).toFixed(1)}`,
-      metricToMeasure: "Access approval confirmed by Community Lead / Class Representative",
-      reconsiderCondition: "If approval is declined, immediately redirect outreach hours to peer ambassador recruitment.",
-      urgency: "medium",
+      why: `This community represents the single largest untapped growth lever (${topPending.reachableAudience.toLocaleString()} targeted final-years), but outreach remains temporarily gated pending coordinator permission.`,
+      supportingData: `${topPending.reachableAudience.toLocaleString()} reachable final-years • Estimated +${estRegs} registrations • Low cost of ₹${topPending.cost} (₹${(topPending.cost / Math.max(1, estRegs)).toFixed(2)} CAC)`,
+      estimatedImpact: `+${estRegs} Unique Registrations upon approval (surpasses the 500 campaign goal)`,
+      effortCost: `${topPending.effortHours} hrs coordinator follow-up • ₹${topPending.cost} allocated budget`,
+      metricToMeasure: "Official broadcast permission granted & 1-page circular posted in primary batch channel within 24h",
+      reconsiderCondition: "If approval is declined or delayed past Day 3, immediately pivot the 8 outreach hours and ₹350 budget to recruit 4 additional student ambassadors.",
+      urgency: "high",
+      targetTab: "radar",
+      actionButtonText: "Prioritize in Radar",
     };
   }
 
-  // Check ambassador recruitment bottleneck
-  if (simulatorParams.ambassadorsCount < 10) {
+  // 6. Forecast Below Target (Forecast Gap > 0)
+  if (projections.forecastGap > 0) {
+    return {
+      action: `Scale Channel Mix to Close ${projections.forecastGap} Registration Forecast Gap`,
+      why: `Current simulation models ${projections.projectedUnique} registrations (${projections.forecastGap} short of ${targetRegistrations} target). Expanding campus ambassadors from ${simulatorParams?.ambassadorsCount || 12} to 14 or boosting club reach closes this gap.`,
+      supportingData: `Projected unique: ${projections.projectedUnique} | Target: ${targetRegistrations} | Forecast completion: ${projections.forecastCompletion}%`,
+      estimatedImpact: `+${projections.forecastGap + 15} Unique Registrations to cross the 500 target`,
+      effortCost: "3 hrs ambassador onboarding • ₹150 incentive budget",
+      metricToMeasure: "Projected unique registrations reach >= 500 in Simulator",
+      reconsiderCondition: "Once simulation reaches or exceeds 500 unique registrations.",
+      urgency: "medium",
+      targetTab: "simulator",
+      actionButtonText: "Close Gap in Simulator",
+    };
+  }
+
+  // 7. Ambassador Network Scaling Bottleneck
+  if (simulatorParams?.ambassadorsCount < 10) {
     return {
       action: "Recruit 4 Additional Student Campus Ambassadors",
-      why: "Ambassador peer referrals provide the lowest CAC and highest attendance intent among final-year students.",
-      supportingData: `Current: ${simulatorParams.ambassadorsCount} reps | Benchmark needed: 12-15 reps to safely generate ~190+ unique registrations.`,
+      why: "Ambassador peer referrals provide the lowest blended CAC and highest attendance intent among final-year students.",
+      supportingData: `Current: ${simulatorParams?.ambassadorsCount} reps | Target needed: 12-15 reps to safely generate ~190+ unique registrations.`,
+      estimatedImpact: "+50 to +65 Unique Registrations via peer DMs (Est.)",
+      effortCost: "6 hrs onboarding • ₹250 incentive budget",
       metricToMeasure: "4 new verified ambassadors active with personalized referral links",
-      reconsiderCondition: "If ambassador recruitment takes >24 hours, shift budget to direct club co-sponsorship.",
+      reconsiderCondition: "If ambassador onboarding takes >24 hours, shift focus to direct Class CR broadcasts.",
       urgency: "medium",
+      targetTab: "simulator",
+      actionButtonText: "Scale in Simulator",
     };
   }
 
-  // Check budget remaining
-  if (projections.budgetRemaining > 500) {
+  // 8. Unallocated Budget Deployment
+  if (projections.budgetRemaining >= 400) {
     return {
-      action: "Deploy ₹400 Remaining Budget to Sponsored Coding Club Teaser",
-      why: `You have ₹${projections.budgetRemaining} unallocated budget. Allocating ₹400 to top-performing coding clubs can capture ~45 additional registrations.`,
-      supportingData: `Projected unique: ${projections.projectedUnique} / 500 target | Blended CAC: ₹${projections.blendedCAC}`,
-      metricToMeasure: "40+ registrations tracked from sponsored club broadcasts",
-      reconsiderCondition: "Re-evaluate if CAC rises above ₹6 per registration.",
-      urgency: "low",
+      action: "Deploy ₹350 Unallocated Budget to Sponsored Coding Club Teaser",
+      why: `You have ₹${projections.budgetRemaining} unallocated buffer. Deploying ₹350 to top-performing coding clubs captures ~40 additional high-intent registrations.`,
+      supportingData: `Projected unique: ${projections.projectedUnique} / ${targetRegistrations} target | Blended CAC: ₹${projections.blendedCAC}`,
+      estimatedImpact: "+35 to +45 Unique Registrations (Est.)",
+      effortCost: "3 hrs coordination • ₹350 club sponsorship",
+      metricToMeasure: "35+ registrations tracked from sponsored club broadcasts",
+      reconsiderCondition: "Re-evaluate if CAC rises above ₹5.50 per registration.",
+      urgency: "medium",
+      targetTab: "radar",
+      actionButtonText: "Deploy in Radar",
     };
   }
 
-  // Default optimal action
+  // 9. Default High-Velocity Action
   return {
     action: "Deploy Outcome-Focused WhatsApp Teaser via Approved Class Representatives",
-    why: "Placement-oriented messaging ('Build an AI project for your resume') tested +87% higher conversion than generic workshop invitations.",
-    supportingData: `Current actual test registrations: ${actualCount} | Projected unique: ${projections.projectedUnique} | Days left: ${simulatorParams.campaignDays}`,
+    why: "Placement-oriented messaging ('Build an AI project for your resume') tested +87% higher conversion than generic workshop announcements.",
+    supportingData: `Recorded test registrations: ${actualCount} | Projected unique: ${projections.projectedUnique} | Sprint days left: ${projections.daysRemaining}`,
+    estimatedImpact: "+65 to +90 Unique Registrations across 5 college batches (Est.)",
+    effortCost: "4 hrs broadcast coordination • ₹250 CR honorarium",
     metricToMeasure: "Click-to-registration conversion rate >= 8.5% across college broadcast links",
     reconsiderCondition: "If Day 3 cumulative actual registrations fall below 150, trigger Failure Lab recovery protocol.",
     urgency: "normal",
+    targetTab: "radar",
+    actionButtonText: "Execute in Radar",
   };
 }

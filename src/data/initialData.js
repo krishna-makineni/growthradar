@@ -27,6 +27,7 @@ export const INITIAL_COMMUNITIES = [
     cost: 400,
     confidence: "High",
     accessStatus: "approved", // uncontacted | contact_identified | permission_requested | approved | unavailable
+    nextAction: "Deploy outcome-focused teaser copy to Coding Club leads and schedule 10-min live demo.",
     notes: "Direct tie-up with Club Leads. Exclusive hands-on AI teaser demo approved.",
     isDemo: true,
   },
@@ -41,6 +42,7 @@ export const INITIAL_COMMUNITIES = [
     cost: 350,
     confidence: "Medium",
     accessStatus: "permission_requested",
+    nextAction: "Follow up with placement group admins; share 1-page circular highlighting resume AI project.",
     notes: "High intent students anxious about tech hiring. Messaging focused on project portfolio for interviews.",
     isDemo: true,
   },
@@ -55,6 +57,7 @@ export const INITIAL_COMMUNITIES = [
     cost: 250,
     confidence: "High",
     accessStatus: "contact_identified",
+    nextAction: "Provide finalized broadcast text and unique batch UTM links to Class Representatives.",
     notes: "CRs verified. Need outcome-oriented 1-page circular for broadcast.",
     isDemo: true,
   },
@@ -69,6 +72,7 @@ export const INITIAL_COMMUNITIES = [
     cost: 300,
     confidence: "Medium",
     accessStatus: "permission_requested",
+    nextAction: "Submit formal event endorsement request to IEEE/ACM student executive committee.",
     notes: "Requires formal event endorsement; slightly bureaucratic permission flow.",
     isDemo: true,
   },
@@ -83,6 +87,7 @@ export const INITIAL_COMMUNITIES = [
     cost: 200,
     confidence: "Low",
     accessStatus: "uncontacted",
+    nextAction: "Engage Discord moderators with live GitHub repo demo preview before requesting general broadcast.",
     notes: "Tech-savvy students, skeptical of webinars unless live coding proof is demonstrated.",
     isDemo: true,
   },
@@ -97,6 +102,7 @@ export const INITIAL_COMMUNITIES = [
     cost: 500,
     confidence: "High",
     accessStatus: "approved",
+    nextAction: "Equip 12 active ambassadors with individual referral codes, tracking dashboard, and ₹50 milestone incentive.",
     notes: "12 active final-year student reps equipped with personalized referral links and swag incentives.",
     isDemo: true,
   },
@@ -104,6 +110,7 @@ export const INITIAL_COMMUNITIES = [
 
 export const INITIAL_SIMULATOR_PARAMS = {
   // Preset: Base Case
+  targetRegistrations: 500,
   communityReach: 2800,
   communityConv: 0.07, // 7.0%
   communityCost: 500,
@@ -130,6 +137,7 @@ export const SIMULATOR_PRESETS = {
     name: "Conservative",
     description: "Cautious adoption, higher friction with CR approvals, 18% channel overlap",
     params: {
+      targetRegistrations: 500,
       communityReach: 2000,
       communityConv: 0.048,
       communityCost: 450,
@@ -151,6 +159,7 @@ export const SIMULATOR_PRESETS = {
     name: "Base Case",
     description: "Realistic balanced execution across approved student clubs and peer ambassadors",
     params: {
+      targetRegistrations: 500,
       communityReach: 2800,
       communityConv: 0.07,
       communityCost: 500,
@@ -172,6 +181,7 @@ export const SIMULATOR_PRESETS = {
     name: "Optimistic",
     description: "Viral peer sharing, high CR broadcast speed, low 9% overlap",
     params: {
+      targetRegistrations: 500,
       communityReach: 3600,
       communityConv: 0.09,
       communityCost: 600,
@@ -208,11 +218,11 @@ export const INITIAL_MISSIONS = [
   {
     id: "m-2",
     title: "Recruit & Onboard 12 Campus Ambassadors",
-    description: "Identify high-reputation final year students across targeted colleges; issue unique referral codes and ₹50 incentive structure.",
+    description: "Identify high-reputation final year students across targeted colleges; issue unique referral codes and ₹50 milestone incentive structure.",
     channel: "Ambassador Network",
     owner: "Community Strategist",
     effortHours: 6,
-    cost: 600,
+    cost: 650,
     expectedOutcome: "12 active ambassadors sharing with batchmates",
     metric: "12 active unique referral codes deployed",
     dueDay: 2,
@@ -225,7 +235,7 @@ export const INITIAL_MISSIONS = [
     channel: "Final-Year Class",
     owner: "Campus Relations",
     effortHours: 5,
-    cost: 300,
+    cost: 400,
     expectedOutcome: "3,000+ targeted final-year batch impressions",
     metric: "5 college CR broadcasts confirmed",
     dueDay: 3,
@@ -238,7 +248,7 @@ export const INITIAL_MISSIONS = [
     channel: "College Coding Club",
     owner: "Technical Advocate",
     effortHours: 4,
-    cost: 200,
+    cost: 500,
     expectedOutcome: "High trust and >15% conversion spike from tech attendees",
     metric: "75+ attendees at teaser demo",
     dueDay: 4,
@@ -264,7 +274,7 @@ export const INITIAL_MISSIONS = [
     channel: "Peer Referral",
     owner: "Growth Lead",
     effortHours: 4,
-    cost: 250,
+    cost: 150,
     expectedOutcome: "Close final 100 registration gap and maximize workshop attendance intent",
     metric: "100+ final sprint registrations",
     dueDay: 6,
@@ -275,12 +285,12 @@ export const INITIAL_MISSIONS = [
 export const INITIAL_EXPERIMENTS = [
   {
     id: "exp-1",
-    name: "Outcome-Focused Message vs Generic Workshop Announcement",
-    hypothesis: "Framing the workshop around 'Build a concrete project for your resume' will achieve >40% higher click-to-register conversion than 'Free AI Workshop' announcement.",
-    variantA: "Generic Announcement: 'Join our free 60-min AI workshop this Saturday. Learn GenAI concepts.'",
-    variantB: "Outcome-Focused: 'Build & deploy your first working AI project in 60 mins. Add a verified GenAI repo to your resume before placements.'",
+    name: "Experiment A — Message Positioning",
+    hypothesis: "A specific, project-oriented workshop message will produce a higher registration conversion rate than a generic AI workshop message.",
+    variantA: "Variant A: General workshop promotion ('Join our free 60-min AI workshop this Saturday. Learn GenAI concepts.')",
+    variantB: "Variant B: 'Less scrolling. More building.' ('Build & deploy your first working AI project in 60 mins. Less scrolling. More building.')",
     audience: "Final-year placement WhatsApp groups (1,200 eligible students)",
-    primaryMetric: "Unique Registration Conversion Rate (%)",
+    primaryMetric: "Unique registrations divided by tracked visits",
     supportingMetrics: "Click-through rate (CTR), Form Completion Rate",
     sampleSizeA: 420,
     conversionsA: 24, // 5.71%
@@ -289,17 +299,17 @@ export const INITIAL_EXPERIMENTS = [
     status: "completed", // "draft" | "running" | "completed"
     startDay: 1,
     endDay: 3,
-    notes: "Variant B delivered an 87% relative conversion lift. Adopted as default master copy across all channels.",
+    notes: "Variant B ('Less scrolling. More building.') delivered an 87.4% relative conversion lift (p < 0.01). Adopted as default master copy across all channels.",
   },
   {
     id: "exp-2",
-    name: "Peer Ambassador Recommendation vs General Community Blast",
-    hypothesis: "A personalized 1-on-1 DM referral from a known batchmate will yield 2.5x higher conversion than an admin broadcast in a 500-member group.",
-    variantA: "Admin Channel Blast: Pinned message in community announcement channel with universal link.",
-    variantB: "Ambassador Peer DM: Personalized peer note with dedicated referral code and batchmate invite.",
+    name: "Experiment B — Acquisition Channel",
+    hypothesis: "Relevant student ambassadors may generate more qualified registrations per unit of effort than a broad, untargeted community post.",
+    variantA: "Variant A: Broad Untargeted Community Post (Pinned broadcast message in general student groups)",
+    variantB: "Variant B: Student Ambassador Peer DMs (Personalized 1-on-1 batchmate outreach with attributed referral code)",
     audience: "Partner College Coding Clubs & Branch Groups (900 students)",
-    primaryMetric: "Attributed Registrations per 100 Reached",
-    supportingMetrics: "Attendance confirmation, Ambassador viral coefficient",
+    primaryMetric: "Unique registrations per hour of effort",
+    secondaryMetric: "Cost per registration (₹ CAC)",
     sampleSizeA: 380,
     conversionsA: 19, // 5.0%
     sampleSizeB: 350,
@@ -307,25 +317,25 @@ export const INITIAL_EXPERIMENTS = [
     status: "running",
     startDay: 2,
     endDay: 5,
-    notes: "Peer referral shows significantly higher intent and completion rate. Requires maintaining ambassador motivation.",
+    notes: "Ambassador peer outreach generates 4.0 regs/hour vs 2.4 regs/hour for broad posts. Requires maintaining ambassador motivation.",
   },
   {
     id: "exp-3",
-    name: "Project-Oriented CTA vs Generic 'Register Now' CTA",
-    hypothesis: "Changing the registration button CTA from 'Register Now' to 'Claim My Project Seat' creates stronger psychological ownership and reduces abandonment.",
-    variantA: "Generic CTA: 'Register Now' (Standard blue button)",
-    variantB: "Project CTA: 'Reserve My Build Seat — Free' (High-contrast action)",
-    audience: "Mobile registration page visitors (A/B traffic split)",
-    primaryMetric: "Form Submission Rate among Visitors (%)",
-    supportingMetrics: "Time on page, bounce rate",
+    name: "Experiment C — Call to Action",
+    hypothesis: "A clear, benefit-led registration CTA may outperform a generic registration message.",
+    variantA: "Variant A: Generic CTA ('Register Now')",
+    variantB: "Variant B: Benefit-Led CTA ('Reserve My Build Seat — Free')",
+    audience: "Mobile workshop registration landing page visitors (A/B traffic split)",
+    primaryMetric: "Registration conversion rate (%)",
+    supportingMetrics: "Time on page, form submission drop-off",
     sampleSizeA: 260,
-    conversionsA: 38, // 14.6%
+    conversionsA: 38, // 14.62%
     sampleSizeB: 275,
-    conversionsB: 54, // 19.6%
+    conversionsB: 54, // 19.64%
     status: "running",
     startDay: 3,
     endDay: 6,
-    notes: "Early indicators show +5.0% absolute lift for Variant B. Statistically significant trend forming.",
+    notes: "Benefit-led CTA shows +5.0% absolute conversion lift. Nearing required sample size for full statistical confidence validation.",
   },
 ];
 
@@ -349,6 +359,7 @@ export const INITIAL_TEST_REGISTRATIONS = [
     referralCode: "AMB-PRIYA",
     createdAt: "2026-10-27T10:14:00.000Z",
     isDemo: true,
+    isSeed: true,
   },
   {
     id: "REG-1002",
@@ -361,6 +372,7 @@ export const INITIAL_TEST_REGISTRATIONS = [
     referralCode: "AMB-ROHIT",
     createdAt: "2026-10-27T11:32:00.000Z",
     isDemo: true,
+    isSeed: true,
   },
   {
     id: "REG-1003",
@@ -373,6 +385,7 @@ export const INITIAL_TEST_REGISTRATIONS = [
     referralCode: "AMB-SNEHA",
     createdAt: "2026-10-27T14:45:00.000Z",
     isDemo: true,
+    isSeed: true,
   },
   {
     id: "REG-1004",
@@ -385,6 +398,7 @@ export const INITIAL_TEST_REGISTRATIONS = [
     referralCode: "",
     createdAt: "2026-10-27T16:10:00.000Z",
     isDemo: true,
+    isSeed: true,
   },
   {
     id: "REG-1005",
@@ -397,5 +411,19 @@ export const INITIAL_TEST_REGISTRATIONS = [
     referralCode: "AMB-KAVYA",
     createdAt: "2026-10-27T18:05:00.000Z",
     isDemo: true,
+    isSeed: true,
+  },
+  {
+    id: "REG-1006",
+    name: "Tanvi Saxena",
+    email: "tanvi.s@engg.ac.in",
+    normalizedEmail: "tanvi.s@engg.ac.in",
+    graduationYear: "2025",
+    college: "National Institute of Technology",
+    source: "cr_outreach",
+    referralCode: "AMB-ADITYA",
+    createdAt: "2026-10-27T19:22:00.000Z",
+    isDemo: true,
+    isSeed: true,
   },
 ];

@@ -176,13 +176,198 @@ const mockState = {
   communities: INITIAL_COMMUNITIES,
   actualRegistrations: [],
   missions: [
-    { id: "m-1", title: "Setup broadcast link", status: "blocked", owner: "Growth Lead", channel: "WhatsApp", cost: 0 }
+    { id: "m-1", title: "Setup broadcast link", status: "blocked", owner: "Growth Lead", cost: 0, effortHours: 2 }
   ],
 };
 const actionResult = generateRecommendedNextAction(mockState);
 assert(actionResult.action.includes("Unblock Critical Mission"), "Blocked mission must take top priority in recommendations");
-console.log(`  ✔ Critical blocker correctly prioritized: "${actionResult.action}"`);
+assert.strictEqual(actionResult.targetTab, "missions", "Blocked mission must route to missions tab");
+console.log(`  ✔ Critical blocker correctly prioritized: "${actionResult.action}" -> targetTab: ${actionResult.targetTab}`);
+
+// Test pending high-value community recommendation
+const noBlockedState = {
+  simulatorParams: INITIAL_SIMULATOR_PARAMS,
+  communities: INITIAL_COMMUNITIES,
+  actualRegistrations: [],
+  missions: [],
+};
+const pendingAction = generateRecommendedNextAction(noBlockedState);
+assert.strictEqual(pendingAction.targetTab, "radar", "Pending community must route to radar tab");
+console.log(`  ✔ High-potential pending community correctly triggers radar action -> targetTab: ${pendingAction.targetTab}`);
+
+// Test budget overrun recommendation
+const overrunState = {
+  simulatorParams: {
+    ...INITIAL_SIMULATOR_PARAMS,
+    communityCost: 1500,
+    ambassadorCost: 1000,
+  },
+  communities: [],
+  actualRegistrations: [],
+  missions: [],
+};
+const overrunAction = generateRecommendedNextAction(overrunState);
+assert.strictEqual(overrunAction.targetTab, "simulator", "Budget overrun must route to simulator tab");
+console.log(`  ✔ Budget overrun correctly triggers simulator action -> targetTab: ${overrunAction.targetTab}`);
+
+
+// ----------------------------------------------------
+// TEST SUITE 5: Zero Denominators, NaN Guards & Dynamic Target
+// ----------------------------------------------------
+console.log("\nTest Suite 5: Zero Denominators, NaN Guards & Dynamic Target");
+
+// Test 5.1: Zero and negative denominators in simulator
+const zeroParamProjections = calculateSimulatorProjections({
+  campaignDays: 0,
+  budget: 0,
+  communityReach: 0,
+  communityConv: 0,
+  ambassadorsCount: 0,
+  regsPerAmbassador: 0,
+  organicReach: 0,
+  organicConv: 0,
+  directOutreachReach: 0,
+  directConv: 0,
+  overlapRate: NaN,
+}, 0);
+
+assert(Number.isFinite(zeroParamProjections.projectedUnique), "projectedUnique must be finite");
+assert(Number.isFinite(zeroParamProjections.dailyRunRateRequired), "dailyRunRateRequired must be finite");
+assert(Number.isFinite(zeroParamProjections.dailyRunRateProjected), "dailyRunRateProjected must be finite");
+assert(Number.isFinite(zeroParamProjections.blendedCAC), "blendedCAC must be finite");
+assert(Number.isFinite(zeroParamProjections.overlapRate), "overlapRate must never be NaN");
+assert(!Number.isNaN(zeroParamProjections.overlapRate), "overlapRate must never be NaN");
+console.log("  ✔ Zero inputs and NaN overlap safely sanitized without NaN or Infinity");
+
+// Test 5.2: Dynamic Target scaling
+const customTargetProjections = calculateSimulatorProjections(INITIAL_SIMULATOR_PARAMS, 750);
+assert.strictEqual(customTargetProjections.targetRegistrations, 750, "Target should scale to 750");
+assert(customTargetProjections.gap > 0, "Gap must reflect new 750 target");
+assert.strictEqual(
+  customTargetProjections.dailyRunRateRequired,
+  Number((750 / INITIAL_SIMULATOR_PARAMS.campaignDays).toFixed(1)),
+  "Required run-rate must recalculate with new target"
+);
+console.log("  ✔ Dynamic target scaling (500 -> 750) updates gap and daily run-rate cleanly");
+
+// Test 5.3: Community scoring zero division safety
+const zeroComm = {
+  name: "Empty Club",
+  reachableAudience: 0,
+  conversionRate: 0,
+  effortHours: 0,
+  cost: 0,
+};
+const zeroCommScore = calculateCommunityScore(zeroComm);
+assert(Number.isFinite(zeroCommScore.priorityScore), "Zero community score must be finite");
+assert(Number.isFinite(zeroCommScore.regsPerHour), "Zero community regsPerHour must be finite");
+assert(Number.isFinite(zeroCommScore.costPerReg), "Zero community costPerReg must be finite");
+console.log("  ✔ Community scoring zero division safely guarded");
+
+// ----------------------------------------------------
+// TEST SUITE 6: Minimum Audit Verification Criteria (Prompt Section 8)
+// ----------------------------------------------------
+console.log("\nTest Suite 6: Minimum Audit Verification Criteria (Prompt Section 8)");
+
+const mockActualRegs = [
+  { id: "REG-1", normalizedEmail: "r1@test.edu" },
+  { id: "REG-2", normalizedEmail: "r2@test.edu" },
+  { id: "REG-3", normalizedEmail: "r3@test.edu" },
+  { id: "REG-4", normalizedEmail: "r4@test.edu" },
+  { id: "REG-5", normalizedEmail: "r5@test.edu" },
+  { id: "REG-6", normalizedEmail: "r6@test.edu" },
+];
+
+const auditProjections = calculateSimulatorProjections(
+  INITIAL_SIMULATOR_PARAMS,
+  500,
+  {
+    actualRegistrations: mockActualRegs,
+    actualSpend: 0,
+    totalCampaignDays: 7,
+    daysRemaining: 7,
+  }
+);
+
+// Check 1: ₹2,000 budget and ₹1,800 allocated produce ₹200 remaining
+assert.strictEqual(auditProjections.totalBudget, 2000, "Total budget must be 2000");
+assert.strictEqual(auditProjections.totalAllocatedBudget, 1800, "Allocated budget must be 1800");
+assert.strictEqual(auditProjections.budgetRemaining, 200, "Remaining budget must be exactly 200");
+console.log("  ✔ Check 1: ₹2,000 budget and ₹1,800 allocated produce ₹200 remaining");
+
+// Check 2: Zero registrations do not cause division errors
+const zeroRegProjections = calculateSimulatorProjections(
+  INITIAL_SIMULATOR_PARAMS,
+  500,
+  { actualRegistrations: [], actualSpend: 0, daysRemaining: 0 }
+);
+assert.strictEqual(zeroRegProjections.actualCAC, "N/A", "Zero actual registrations must return 'N/A' for actual CAC");
+assert(Number.isFinite(zeroRegProjections.projectedUnique), "Projected unique must be finite");
+console.log("  ✔ Check 2: Zero registrations do not cause division errors (returns 'N/A' safely)");
+
+// Check 3: Actual and forecast cost-per-registration values use the correct denominators
+const spendTestProjections = calculateSimulatorProjections(
+  INITIAL_SIMULATOR_PARAMS,
+  500,
+  { actualRegistrations: mockActualRegs, actualSpend: 150 }
+);
+// Actual CAC denominator is actual unique registrations (6): 150 / 6 = 25.00
+assert.strictEqual(spendTestProjections.actualCAC, 25.00, "Actual CAC must divide spend by actual unique registrations (150/6 = 25.00)");
+// Forecast CAC denominator is projected unique (486): 1800 / 486 = 3.70
+assert.strictEqual(spendTestProjections.forecastCAC, 3.70, "Forecast CAC must divide forecast spend by projected unique (1800/486 = 3.70)");
+// Target CAC denominator is target (500): 2000 / 500 = 4.00
+assert.strictEqual(spendTestProjections.targetCAC, 4.00, "Target CAC must divide total budget by target registrations (2000/500 = 4.00)");
+console.log("  ✔ Check 3: Actual and forecast cost-per-registration values use correct denominators");
+
+// Check 4: Six actual registrations against a target of 500 produce a gap of 494 actual registrations
+assert.strictEqual(auditProjections.actualCount, 6, "Actual unique count must be 6");
+assert.strictEqual(auditProjections.actualRegistrationsRemaining, 494, "Registrations remaining must be 494 (500 - 6)");
+console.log("  ✔ Check 4: Six actual registrations against a target of 500 produce a gap of 494 actual registrations");
+
+// Check 5: A projection of 486 against a target of 500 produces a forecast gap of 14
+assert.strictEqual(auditProjections.projectedUnique, 486, "Baseline projection must be exactly 486");
+assert.strictEqual(auditProjections.forecastGap, 14, "Forecast gap must be exactly 14 (500 - 486)");
+console.log("  ✔ Check 5: A projection of 486 against a target of 500 produces a forecast gap of 14");
+
+// Check 6: Seven days remaining and 494 registrations needed produce a required pace of approximately 70.6 registrations/day
+assert.strictEqual(auditProjections.requiredDailyPace, 70.6, "Required daily pace must be approximately 70.6 (494 / 7)");
+console.log("  ✔ Check 6: Seven days remaining and 494 registrations needed produce a required pace of 70.6 registrations/day");
+
+// Check 7: Changing overlap changes projected unique registrations when channel contributions are nonzero
+const overlap13 = calculateSimulatorProjections({ ...INITIAL_SIMULATOR_PARAMS, overlapRate: 0.13 }, 500);
+const overlap18 = calculateSimulatorProjections({ ...INITIAL_SIMULATOR_PARAMS, overlapRate: 0.18 }, 500);
+const overlap9  = calculateSimulatorProjections({ ...INITIAL_SIMULATOR_PARAMS, overlapRate: 0.09 }, 500);
+assert.notStrictEqual(overlap13.projectedUnique, overlap18.projectedUnique, "Changing overlap to 18% must change projected unique");
+assert.notStrictEqual(overlap13.projectedUnique, overlap9.projectedUnique, "Changing overlap to 9% must change projected unique");
+assert(overlap9.projectedUnique > overlap13.projectedUnique, "Lower overlap (9%) must yield higher unique registrations than 13%");
+assert(overlap18.projectedUnique < overlap13.projectedUnique, "Higher overlap (18%) must yield lower unique registrations than 13%");
+console.log(`  ✔ Check 7: Changing overlap changes unique registrations (9% -> ${overlap9.projectedUnique}, 13% -> ${overlap13.projectedUnique}, 18% -> ${overlap18.projectedUnique})`);
+
+// Check 8: Changing a failure scenario changes the forecast when its assumptions materially affect the model
+const convHalvedParams = {
+  ...INITIAL_SIMULATOR_PARAMS,
+  communityConv: INITIAL_SIMULATOR_PARAMS.communityConv * 0.5,
+  organicConv: INITIAL_SIMULATOR_PARAMS.organicConv * 0.5,
+  directConv: INITIAL_SIMULATOR_PARAMS.directConv * 0.5,
+  regsPerAmbassador: Math.round(INITIAL_SIMULATOR_PARAMS.regsPerAmbassador * 0.5),
+};
+const failureProjections = calculateSimulatorProjections(convHalvedParams, 500);
+assert(failureProjections.projectedUnique < auditProjections.projectedUnique, "Conversion halved scenario must significantly drop forecast");
+assert(failureProjections.forecastGap > auditProjections.forecastGap, "Failure scenario must increase forecast gap");
+console.log(`  ✔ Check 8: Changing failure scenario drops forecast materially (486 -> ${failureProjections.projectedUnique})`);
+
+// Check 9: The target-achieved state does not display a negative registration gap
+const overTargetActuals = Array.from({ length: 510 }, (_, i) => ({ id: `REG-${i}`, normalizedEmail: `s${i}@test.edu` }));
+const overTargetProjections = calculateSimulatorProjections(
+  { ...INITIAL_SIMULATOR_PARAMS, communityReach: 5000 },
+  500,
+  { actualRegistrations: overTargetActuals, daysRemaining: 3 }
+);
+assert.strictEqual(overTargetProjections.forecastGap, 0, "Forecast gap must not be negative when projected >= target");
+assert.strictEqual(overTargetProjections.actualRegistrationsRemaining, 0, "Registrations remaining must not be negative when actual >= target");
+assert.strictEqual(overTargetProjections.requiredDailyPace, 0, "Required daily pace must be 0 when target is achieved");
+console.log("  ✔ Check 9: Target-achieved state does not display a negative registration gap (safely bounded at 0)");
 
 console.log("\n========================================================");
-console.log("🎉 ALL TESTS PASSED SUCCESSFULLY! (4 Suites, 12 Checks)");
+console.log("🎉 ALL TESTS PASSED SUCCESSFULLY! (6 Suites, 27 Checks)");
 console.log("========================================================\n");

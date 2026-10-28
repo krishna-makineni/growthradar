@@ -1,5 +1,5 @@
 import React from "react";
-import { Menu, UserCheck, Trophy, Sparkles, AlertCircle } from "lucide-react";
+import { Menu, UserCheck, Trophy, AlertCircle } from "lucide-react";
 import { useGrowth } from "../../context/GrowthContext";
 
 export function Navbar({ onToggleSidebar, onSelectTab, onOpenLeaderboard }) {
@@ -7,32 +7,32 @@ export function Navbar({ onToggleSidebar, onSelectTab, onOpenLeaderboard }) {
   const actualCount = actualRegistrations.length;
 
   return (
-    <header className="sticky top-0 z-20 bg-[#0B1020]/90 backdrop-blur-md border-b border-[#1E2B45] px-4 md:px-8 py-3.5">
+    <header className="sticky top-0 z-20 bg-[#070B14]/85 backdrop-blur-md border-b border-[rgba(148,163,184,0.16)] px-4 md:px-8 py-3 transition-colors">
       <div className="flex items-center justify-between gap-4">
-        {/* Left: Mobile hamburger & Title */}
-        <div className="flex items-center gap-3">
+        {/* Left: Mobile hamburger & Campaign identifier */}
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onToggleSidebar}
-            className="p-2 text-[#9BA8BB] hover:text-[#F5F7FA] hover:bg-[#141E33] rounded-lg md:hidden transition-colors"
+            className="p-2 text-[#A5B2C5] hover:text-[#F5F7FB] hover:bg-[#111C2E] rounded-lg md:hidden transition-colors cursor-pointer shrink-0"
             aria-label="Open sidebar"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-[#B8F56A] uppercase tracking-wider hidden sm:inline-block">
-                NxtWave Growth Challenge
+              <span className="text-[11px] font-mono uppercase tracking-wider text-[#C5F56A] hidden sm:inline-block font-semibold">
+                NxtWave Sprint
               </span>
               <span className="text-[#64748B] hidden sm:inline-block">•</span>
-              <span className="text-xs text-[#9BA8BB] truncate max-w-[200px] sm:max-w-xs">
+              <span className="text-xs text-[#A5B2C5] truncate max-w-[180px] sm:max-w-xs md:max-w-md font-medium">
                 {campaignSettings.campaignName}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right: Quick metric pills and primary actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right: Quick metric indicators and primary actions */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {activeFailureScenario && (
             <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium animate-pulse">
               <AlertCircle className="w-3.5 h-3.5" />
@@ -40,29 +40,33 @@ export function Navbar({ onToggleSidebar, onSelectTab, onOpenLeaderboard }) {
             </div>
           )}
 
-          {/* Actual test registrations count badge */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#121A2B] border border-[#1E2B45] text-xs">
-            <span className="text-[#9BA8BB]">Actual Recorded:</span>
-            <span className="font-bold text-[#51D6C7]">{actualCount}</span>
+          {/* Actual test registrations count indicator */}
+          <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[#0D1523] border border-[rgba(148,163,184,0.16)] text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-[#A5B2C5]">Actual:</span>
+              <span className="font-mono font-bold text-[#4ADFFF]">{actualCount}</span>
+            </div>
             <span className="text-[#64748B]">/</span>
-            <span className="text-[#9BA8BB]">Proj:</span>
-            <span className="font-bold text-[#B8F56A]">{projections.projectedUnique}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-[#A5B2C5]">Proj:</span>
+              <span className="font-mono font-bold text-[#C5F56A]">{projections.projectedUnique}</span>
+            </div>
           </div>
 
-          {/* Ambassador Leaderboard trigger */}
+          {/* Ambassador Leaderboard CTA */}
           <button
             onClick={onOpenLeaderboard}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#9BA8BB] hover:text-[#F5F7FA] bg-[#121A2B] hover:bg-[#18253D] border border-[#1E2B45] rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#A5B2C5] hover:text-[#F5F7FB] bg-[#0D1523] hover:bg-[#111C2E] border border-[rgba(148,163,184,0.16)] hover:border-[rgba(148,163,184,0.28)] rounded-lg transition-colors cursor-pointer"
             title="View Campus Ambassador Leaderboard"
           >
-            <Trophy className="w-3.5 h-3.5 text-[#FACC15]" />
+            <Trophy className="w-3.5 h-3.5 text-[#FB923C]" />
             <span className="hidden md:inline">Leaderboard</span>
           </button>
 
           {/* Live Registration portal CTA */}
           <button
             onClick={() => onSelectTab("register")}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#0B1020] bg-[#B8F56A] hover:bg-[#a5dc5f] rounded-lg shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#070B14] bg-[#C5F56A] hover:bg-[#b8ea5e] rounded-lg shadow-sm transition-colors cursor-pointer"
           >
             <UserCheck className="w-3.5 h-3.5" />
             <span>Test Registration Form</span>

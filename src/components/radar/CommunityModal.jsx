@@ -29,6 +29,7 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
     cost: 300,
     confidence: "Medium",
     accessStatus: "contact_identified",
+    nextAction: "",
     notes: "",
   });
 
@@ -46,6 +47,7 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
         cost: initialData.cost !== undefined ? initialData.cost : 300,
         confidence: initialData.confidence || "Medium",
         accessStatus: initialData.accessStatus || "contact_identified",
+        nextAction: initialData.nextAction || "",
         notes: initialData.notes || "",
       });
     } else {
@@ -59,6 +61,7 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
         cost: 350,
         confidence: "Medium",
         accessStatus: "contact_identified",
+        nextAction: "",
         notes: "",
       });
     }
@@ -107,7 +110,7 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
       <form onSubmit={handleSubmit} className="space-y-4 text-xs md:text-sm">
         {/* Name */}
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
+          <label className="block font-medium text-[#F5F7FB] mb-1">
             Community / Channel Name *
           </label>
           <input
@@ -115,7 +118,7 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="e.g. University IEEE Student Branch"
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm transition-colors"
           />
           {errors.name && <p className="text-rose-400 text-xs mt-1">{errors.name}</p>}
         </div>
@@ -123,16 +126,16 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
         {/* Category & Access Status */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Category
             </label>
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm cursor-pointer"
             >
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
+                <option key={cat} value={cat} className="bg-[#0D1523]">
                   {cat}
                 </option>
               ))}
@@ -140,16 +143,16 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Access Status
             </label>
             <select
               value={formData.accessStatus}
               onChange={(e) => setFormData({ ...formData, accessStatus: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm cursor-pointer"
             >
               {ACCESS_STATUSES.map((status) => (
-                <option key={status.value} value={status.value}>
+                <option key={status.value} value={status.value} className="bg-[#0D1523]">
                   {status.label}
                 </option>
               ))}
@@ -160,27 +163,27 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
         {/* Reach numbers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Total Community Reach
             </label>
             <input
               type="number"
               value={formData.estimatedReach}
               onChange={(e) => setFormData({ ...formData, estimatedReach: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
             {errors.estimatedReach && <p className="text-rose-400 text-xs mt-1">{errors.estimatedReach}</p>}
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Reachable Final-Year Audience *
             </label>
             <input
               type="number"
               value={formData.reachableAudience}
               onChange={(e) => setFormData({ ...formData, reachableAudience: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
             {errors.reachableAudience && <p className="text-rose-400 text-xs mt-1">{errors.reachableAudience}</p>}
           </div>
@@ -189,8 +192,8 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
         {/* Conversion Rate & Confidence */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Expected Conversion Rate (0.01 - 0.20)
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Expected Conversion Rate
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -200,9 +203,9 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
                 max="0.5"
                 value={formData.conversionRate}
                 onChange={(e) => setFormData({ ...formData, conversionRate: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+                className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
               />
-              <span className="text-xs text-[#51D6C7] font-semibold shrink-0">
+              <span className="text-xs font-mono text-[#4ADFFF] font-semibold shrink-0">
                 {(Number(formData.conversionRate || 0) * 100).toFixed(1)}%
               </span>
             </div>
@@ -210,17 +213,17 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Confidence in Estimates
             </label>
             <select
               value={formData.confidence}
               onChange={(e) => setFormData({ ...formData, confidence: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm cursor-pointer"
             >
-              <option value="High">High (Validated Campus Past Performance)</option>
-              <option value="Medium">Medium (Industry Benchmark Benchmark)</option>
-              <option value="Low">Low (Unvalidated Assumption)</option>
+              <option value="High" className="bg-[#0D1523]">High (Validated Past Performance)</option>
+              <option value="Medium" className="bg-[#0D1523]">Medium (Benchmark Estimate)</option>
+              <option value="Low" className="bg-[#0D1523]">Low (Unvalidated Assumption)</option>
             </select>
           </div>
         </div>
@@ -228,7 +231,7 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
         {/* Effort & Cost */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Outreach Effort (Hours)
             </label>
             <input
@@ -237,54 +240,67 @@ export function CommunityModal({ isOpen, onClose, onSave, initialData }) {
               min="0.5"
               value={formData.effortHours}
               onChange={(e) => setFormData({ ...formData, effortHours: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
             {errors.effortHours && <p className="text-rose-400 text-xs mt-1">{errors.effortHours}</p>}
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Allocated Cost (₹ INR)
             </label>
             <input
               type="number"
-              min="0"
               value={formData.cost}
               onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
             {errors.cost && <p className="text-rose-400 text-xs mt-1">{errors.cost}</p>}
           </div>
         </div>
 
+        {/* Next Action */}
+        <div>
+          <label className="block font-medium text-[#F5F7FB] mb-1">
+            Next Growth Action
+          </label>
+          <input
+            type="text"
+            value={formData.nextAction}
+            onChange={(e) => setFormData({ ...formData, nextAction: e.target.value })}
+            placeholder="e.g. Deploy outcome-focused teaser copy to community leads..."
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
+          />
+        </div>
+
         {/* Notes */}
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
-            Execution Notes & Next Action
+          <label className="block font-medium text-[#F5F7FB] mb-1">
+            Strategic Notes / Context
           </label>
           <textarea
             rows={2}
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            placeholder="e.g. Schedule call with President; draft custom announcement message"
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm resize-none"
+            placeholder="Context regarding access, key contacts, or past campaign response..."
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm resize-none"
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#1E2B45]">
+        {/* Submit */}
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(148,163,184,0.16)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-[#9BA8BB] hover:text-white bg-[#182238] hover:bg-[#1E2B45] rounded-lg transition-colors"
+            className="px-4 py-2 text-xs md:text-sm font-medium text-[#A5B2C5] hover:text-[#F5F7FB] bg-[#111C2E] hover:bg-[#18253D] border border-[rgba(148,163,184,0.16)] rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-2 text-xs font-bold text-[#0B1020] bg-[#B8F56A] hover:bg-[#a5dc5f] rounded-lg shadow-sm transition-colors"
+            className="px-4 py-2 text-xs md:text-sm font-semibold text-[#070B14] bg-[#C5F56A] hover:bg-[#b8ea5e] rounded-lg transition-colors cursor-pointer"
           >
-            {initialData ? "Save Changes" : "Create Community"}
+            {initialData ? "Save Changes" : "Add to Radar"}
           </button>
         </div>
       </form>

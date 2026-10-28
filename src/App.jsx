@@ -67,7 +67,7 @@ function MainApp() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0B1020] text-[#F5F7FA] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#070B14] text-[#F5F7FB] flex flex-col font-sans relative">
       {/* Persistent Sidebar (desktop) and mobile drawer */}
       <Sidebar
         currentTab={currentTab}
@@ -78,7 +78,7 @@ function MainApp() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 md:pl-64 flex flex-col min-w-0">
+      <div className="flex-1 md:pl-64 flex flex-col min-w-0 bg-grid-subtle">
         {/* Sticky Top Navbar */}
         <Navbar
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
@@ -99,12 +99,12 @@ function MainApp() {
         </main>
 
         {/* App Footer */}
-        <footer className="border-t border-[#1E2B45] py-5 px-6 text-center text-xs text-[#64748B] bg-[#0F1626]/60">
+        <footer className="border-t border-[rgba(148,163,184,0.16)] py-5 px-6 text-center text-xs text-[#64748B] bg-[#0A1020]/80">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p>
-              <strong className="text-[#9BA8BB]">Campus Growth Radar</strong> — Built for NxtWave Growth Intern Challenge.
+              <strong className="text-[#A5B2C5]">Campus Growth Radar</strong> — Built for NxtWave Growth Intern Challenge.
             </p>
-            <p className="text-[11px]">
+            <p className="text-[11px] font-mono text-[#64748B]">
               Workshop: “Build Your First AI Project in 60 Minutes” • 500 Unique Target • ₹2,000 Budget
             </p>
           </div>

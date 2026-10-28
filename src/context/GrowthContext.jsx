@@ -98,9 +98,24 @@ export function GrowthProvider({ children }) {
   ]);
 
   // Derived calculations
+  const effectiveTarget = Number(simulatorParams.targetRegistrations || campaignSettings.targetRegistrations) || 500;
+  
+  // Actual spend computed from completed missions
+  const actualSpend = missions
+    .filter((m) => m.status === "completed")
+    .reduce((sum, m) => sum + (Number(m.cost) || 0), 0);
+
   const projections = calculateSimulatorProjections(
     simulatorParams,
-    campaignSettings.targetRegistrations
+    effectiveTarget,
+    {
+      actualRegistrations,
+      actualSpend,
+      totalCampaignDays: simulatorParams.campaignDays || campaignSettings.durationDays || 7,
+      daysRemaining: simulatorParams.daysRemaining !== undefined
+        ? Number(simulatorParams.daysRemaining)
+        : Number(simulatorParams.campaignDays || campaignSettings.durationDays || 7),
+    }
   );
 
   const recommendedAction = generateRecommendedNextAction({
@@ -108,6 +123,8 @@ export function GrowthProvider({ children }) {
     communities,
     actualRegistrations,
     missions,
+    targetRegistrations: effectiveTarget,
+    projections,
   });
 
   // Calculate scores for all communities
@@ -119,18 +136,44 @@ export function GrowthProvider({ children }) {
   // Actions
   const updateSimulatorParams = (newParams) => {
     setSimulatorParams((prev) => ({ ...prev, ...newParams }));
+    if (newParams.targetRegistrations !== undefined) {
+      setCampaignSettings((prev) => ({
+        ...prev,
+        targetRegistrations: Number(newParams.targetRegistrations) || 500,
+      }));
+    }
+    if (newParams.budget !== undefined) {
+      setCampaignSettings((prev) => ({
+        ...prev,
+        budget: Number(newParams.budget) || 2000,
+      }));
+    }
+    if (newParams.campaignDays !== undefined) {
+      setCampaignSettings((prev) => ({
+        ...prev,
+        durationDays: Number(newParams.campaignDays) || 7,
+      }));
+    }
     setActivePreset("custom");
   };
 
   const applySimulatorPreset = (presetKey) => {
     if (SIMULATOR_PRESETS[presetKey]) {
-      setSimulatorParams(SIMULATOR_PRESETS[presetKey].params);
+      const presetParams = SIMULATOR_PRESETS[presetKey].params;
+      setSimulatorParams(presetParams);
+      if (presetParams.targetRegistrations) {
+        setCampaignSettings((prev) => ({
+          ...prev,
+          targetRegistrations: presetParams.targetRegistrations,
+        }));
+      }
       setActivePreset(presetKey);
     }
   };
 
   const resetSimulatorParams = () => {
     setSimulatorParams(INITIAL_SIMULATOR_PARAMS);
+    setCampaignSettings(INITIAL_CAMPAIGN_SETTINGS);
     setActivePreset("base");
     setActiveFailureScenario(null);
   };
@@ -315,10 +358,11 @@ export function GrowthProvider({ children }) {
         }));
         break;
       case "fail_time_crunch":
-        // Only 4 days remain in campaign
+        // Only 4 days remain in campaign (original plan was 7 days)
         setSimulatorParams((prev) => ({
           ...prev,
-          campaignDays: 4,
+          campaignDays: 7,
+          daysRemaining: 4,
         }));
         break;
       default:
@@ -337,8 +381,8 @@ export function GrowthProvider({ children }) {
     setActiveFailureScenario(null);
   };
 
-  // Reset demo data
-  const resetAllDemoData = () => {
+  // Reset demo data: restores polished illustrative baseline without overwriting genuine user registrations
+  const resetAllDemoData = (preserveLiveRegistrations = false) => {
     localStorage.removeItem(STORAGE_KEY);
     setCampaignSettings(INITIAL_CAMPAIGN_SETTINGS);
     setSimulatorParams(INITIAL_SIMULATOR_PARAMS);
@@ -347,7 +391,12 @@ export function GrowthProvider({ children }) {
     setMissions(INITIAL_MISSIONS);
     setExperiments(INITIAL_EXPERIMENTS);
     setAmbassadors(INITIAL_AMBASSADORS);
-    setActualRegistrations(INITIAL_TEST_REGISTRATIONS);
+    if (preserveLiveRegistrations) {
+      const liveUserRegistrations = actualRegistrations.filter((r) => !r.isSeed);
+      setActualRegistrations([...INITIAL_TEST_REGISTRATIONS, ...liveUserRegistrations]);
+    } else {
+      setActualRegistrations(INITIAL_TEST_REGISTRATIONS);
+    }
     setActiveFailureScenario(null);
     setPreFailureBackup(null);
   };

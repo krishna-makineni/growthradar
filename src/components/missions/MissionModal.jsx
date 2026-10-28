@@ -91,45 +91,45 @@ export function MissionModal({ isOpen, onClose, onSave, initialData }) {
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs md:text-sm">
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
+          <label className="block font-medium text-[#F5F7FB] mb-1">
             Mission Title *
           </label>
           <input
             type="text"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="e.g. Brief 12 Campus Ambassadors on Referral Codes"
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+            placeholder="e.g. Publish GitHub repository proof teaser"
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm transition-colors"
           />
           {errors.title && <p className="text-rose-400 text-xs mt-1">{errors.title}</p>}
         </div>
 
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
-            Description & Context *
+          <label className="block font-medium text-[#F5F7FB] mb-1">
+            Detailed Description / Playbook *
           </label>
           <textarea
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Detailed tactical breakdown of how this mission will be completed..."
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm resize-none"
+            placeholder="Step-by-step instructions for the executor..."
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm resize-none"
           />
           {errors.description && <p className="text-rose-400 text-xs mt-1">{errors.description}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Target Channel
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Channel Stream
             </label>
             <select
               value={formData.channel}
               onChange={(e) => setFormData({ ...formData, channel: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm cursor-pointer"
             >
               {CHANNELS.map((ch) => (
-                <option key={ch} value={ch}>
+                <option key={ch} value={ch} className="bg-[#0D1523]">
                   {ch}
                 </option>
               ))}
@@ -137,15 +137,15 @@ export function MissionModal({ isOpen, onClose, onSave, initialData }) {
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Owner *
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Accountable Owner *
             </label>
             <input
               type="text"
               value={formData.owner}
               onChange={(e) => setFormData({ ...formData, owner: e.target.value })}
-              placeholder="e.g. Growth Lead / Priya"
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              placeholder="e.g. Ambassador Lead"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
             {errors.owner && <p className="text-rose-400 text-xs mt-1">{errors.owner}</p>}
           </div>
@@ -153,7 +153,21 @@ export function MissionModal({ isOpen, onClose, onSave, initialData }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Due Day (Sprint)
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="7"
+              value={formData.dueDay}
+              onChange={(e) => setFormData({ ...formData, dueDay: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Effort (Hours)
             </label>
             <input
@@ -162,98 +176,50 @@ export function MissionModal({ isOpen, onClose, onSave, initialData }) {
               min="0.5"
               value={formData.effortHours}
               onChange={(e) => setFormData({ ...formData, effortHours: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Budget (₹ INR)
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Allocated Cost (₹)
             </label>
             <input
               type="number"
               min="0"
               value={formData.cost}
               onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Due Day (Day 1 - 7)
-            </label>
-            <select
-              value={formData.dueDay}
-              onChange={(e) => setFormData({ ...formData, dueDay: Number(e.target.value) })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
-            >
-              {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-                <option key={d} value={d}>
-                  Day {d} of Sprint
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Expected Outcome
-            </label>
-            <input
-              type="text"
-              value={formData.expectedOutcome}
-              onChange={(e) => setFormData({ ...formData, expectedOutcome: e.target.value })}
-              placeholder="e.g. 100+ new impressions"
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Measurable Success Metric
-            </label>
-            <input
-              type="text"
-              value={formData.metric}
-              onChange={(e) => setFormData({ ...formData, metric: e.target.value })}
-              placeholder="e.g. 5 CR confirmations"
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
           </div>
         </div>
 
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
-            Status
+          <label className="block font-medium text-[#F5F7FB] mb-1">
+            Verification Metric / Deliverable *
           </label>
-          <select
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
-          >
-            <option value="not_started">Not Started</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="blocked">Blocked</option>
-          </select>
+          <input
+            type="text"
+            value={formData.metric}
+            onChange={(e) => setFormData({ ...formData, metric: e.target.value })}
+            placeholder="e.g. 5 partner coding clubs publish link by 2 PM"
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
+          />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#1E2B45]">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(148,163,184,0.16)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-[#9BA8BB] hover:text-white bg-[#182238] hover:bg-[#1E2B45] rounded-lg transition-colors"
+            className="px-4 py-2 text-xs md:text-sm font-medium text-[#A5B2C5] hover:text-[#F5F7FB] bg-[#111C2E] hover:bg-[#18253D] border border-[rgba(148,163,184,0.16)] rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-2 text-xs font-bold text-[#0B1020] bg-[#B8F56A] hover:bg-[#a5dc5f] rounded-lg shadow-sm transition-colors"
+            className="px-4 py-2 text-xs md:text-sm font-semibold text-[#070B14] bg-[#C5F56A] hover:bg-[#b8ea5e] rounded-lg transition-colors cursor-pointer"
           >
-            {initialData ? "Save Mission" : "Create Mission"}
+            {initialData ? "Save Changes" : "Create Mission"}
           </button>
         </div>
       </form>

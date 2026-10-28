@@ -5,15 +5,11 @@ import {
   Check,
   CheckCircle2,
   Clock,
-  AlertCircle,
-  HelpCircle,
-  Calendar,
   User,
   Filter,
   DollarSign,
   Edit,
   Trash2,
-  ExternalLink,
 } from "lucide-react";
 import { useGrowth } from "../../context/GrowthContext";
 import { Badge } from "../common/Badge";
@@ -21,7 +17,11 @@ import { MissionModal } from "./MissionModal";
 import { ConfirmDialog } from "../common/Modal";
 
 export function MissionsPage() {
-  const { missions, addMission, updateMission, toggleMissionStatus, deleteMission } = useGrowth();
+  const { missions, addMission, updateMission, toggleMissionStatus, deleteMission, simulatorParams } = useGrowth();
+
+  const totalMissionCost = missions.reduce((sum, m) => sum + (Number(m.cost) || 0), 0);
+  const campaignBudget = simulatorParams?.budget || 2000;
+  const unallocatedBudget = campaignBudget - totalMissionCost;
 
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedChannel, setSelectedChannel] = useState("all");
@@ -66,7 +66,7 @@ ${missions
 
   const statusBadges = {
     not_started: { label: "Not Started", variant: "default" },
-    in_progress: { label: "In Progress", variant: "teal" },
+    in_progress: { label: "In Progress", variant: "cyan" },
     completed: { label: "Completed", variant: "lime" },
     blocked: { label: "Blocked", variant: "rose" },
   };
@@ -74,21 +74,21 @@ ${missions
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       {/* Header */}
-      <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-5 md:p-6 shadow-md">
+      <div className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl p-5 md:p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded bg-[#51D6C7]/10 text-[#51D6C7] border border-[#51D6C7]/20">
+              <span className="text-[10px] font-mono font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded bg-[#4ADFFF]/10 text-[#4ADFFF] border border-[#4ADFFF]/25">
                 Sprint Execution
               </span>
-              <span className="text-xs text-[#9BA8BB]">
+              <span className="text-xs text-[#A5B2C5]">
                 Accountability Playbook
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-extrabold text-[#F5F7FA] tracking-tight">
+            <h1 className="font-heading text-xl md:text-2xl font-bold text-[#F5F7FB] tracking-tight">
               Growth Mission Generator
             </h1>
-            <p className="text-xs md:text-sm text-[#9BA8BB] mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs md:text-sm text-[#A5B2C5] mt-1 max-w-2xl leading-relaxed">
               Convert high-level simulator strategy into concrete daily execution tasks with assigned owners, timelines, and measurable verification metrics.
             </p>
           </div>
@@ -96,9 +96,9 @@ ${missions
           <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
             <button
               onClick={handleCopySummary}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#F5F7FA] bg-[#0F1626] hover:bg-[#18253D] border border-[#1E2B45] rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#F5F7FB] bg-[#0A1020] hover:bg-[#111C2E] border border-[rgba(148,163,184,0.16)] rounded-lg transition-colors cursor-pointer"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-[#B8F56A]" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-[#C5F56A]" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? "Copied Briefing!" : "Copy Mission Briefing"}</span>
             </button>
 
@@ -107,7 +107,7 @@ ${missions
                 setEditingMission(null);
                 setIsModalOpen(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#0B1020] bg-[#B8F56A] hover:bg-[#a5dc5f] rounded-lg transition-colors shadow-sm"
+              className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#070B14] bg-[#C5F56A] hover:bg-[#b8ea5e] rounded-lg transition-colors shadow-sm cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create Mission</span>
@@ -115,30 +115,43 @@ ${missions
           </div>
         </div>
 
-        {/* Progress Tracker bar */}
-        <div className="mt-5 pt-4 border-t border-[#1E2B45] space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#F5F7FA]">
-              Sprint Execution Progress: {completedMissions} of {totalMissions} Completed ({completionPercent}%)
+        {/* Progress Tracker bar & Budget Reconciliation */}
+        <div className="mt-5 pt-4 border-t border-[rgba(148,163,184,0.12)] space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span className="font-semibold text-[#F5F7FB]">
+              Sprint Execution Progress: <span className="font-mono">{completedMissions}</span> of <span className="font-mono">{totalMissions}</span> Completed (<span className="font-mono text-[#C5F56A]">{completionPercent}%</span>)
             </span>
-            <div className="flex items-center gap-3 text-[11px] text-[#9BA8BB]">
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#B8F56A]" /> {completedMissions} Done
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#51D6C7]" /> {inProgressMissions} Active
-              </span>
-              {blockedMissions > 0 && (
-                <span className="flex items-center gap-1 text-rose-400 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-rose-400" /> {blockedMissions} Blocked
+            <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-[#A5B2C5]">
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#0A1020] border border-[rgba(148,163,184,0.14)]">
+                <DollarSign className="w-3 h-3 text-[#C5F56A]" />
+                <span>Missions Allocated: <strong className="font-mono text-[#F5F7FB]">₹{totalMissionCost}</strong> / <strong className="font-mono text-[#A5B2C5]">₹{campaignBudget}</strong></span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ml-1 ${
+                  unallocatedBudget >= 0
+                    ? "bg-[#C5F56A]/10 text-[#C5F56A] border-[#C5F56A]/25"
+                    : "bg-rose-500/10 text-rose-400 border-rose-500/25"
+                }`}>
+                  {unallocatedBudget >= 0 ? `₹${unallocatedBudget} Reserve Pool` : `₹${Math.abs(unallocatedBudget)} Over Budget`}
                 </span>
-              )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#C5F56A]" /> <span className="font-mono">{completedMissions}</span> Done
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#4ADFFF]" /> <span className="font-mono">{inProgressMissions}</span> Active
+                </span>
+                {blockedMissions > 0 && (
+                  <span className="flex items-center gap-1 text-rose-400 font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-rose-400" /> <span className="font-mono">{blockedMissions}</span> Blocked
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="w-full h-2.5 rounded-full bg-[#0F1626] border border-[#1E2B45] overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-[#0A1020] border border-[rgba(148,163,184,0.16)] overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#51D6C7] to-[#B8F56A] transition-all duration-300 rounded-full"
+              className="h-full bg-gradient-to-r from-[#4ADFFF] to-[#C5F56A] transition-all duration-300 rounded-full"
               style={{ width: `${completionPercent}%` }}
             />
           </div>
@@ -146,49 +159,49 @@ ${missions
       </div>
 
       {/* Filter bar */}
-      <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center gap-1.5 bg-[#0F1626] border border-[#1E2B45] rounded-lg px-2.5 py-1.5">
+      <div className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-[#0A1020] border border-[rgba(148,163,184,0.16)] rounded-lg px-2.5 py-1.5">
             <Filter className="w-3.5 h-3.5 text-[#64748B]" />
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="bg-transparent text-[#F5F7FA] focus:outline-none text-xs cursor-pointer"
+              className="bg-transparent text-[#F5F7FB] focus:outline-none text-xs cursor-pointer"
             >
-              <option value="all" className="bg-[#121A2B]">All Statuses</option>
-              <option value="not_started" className="bg-[#121A2B]">Not Started</option>
-              <option value="in_progress" className="bg-[#121A2B]">In Progress</option>
-              <option value="completed" className="bg-[#121A2B]">Completed</option>
-              <option value="blocked" className="bg-[#121A2B]">Blocked</option>
+              <option value="all" className="bg-[#0D1523]">All Statuses</option>
+              <option value="not_started" className="bg-[#0D1523]">Not Started</option>
+              <option value="in_progress" className="bg-[#0D1523]">In Progress</option>
+              <option value="completed" className="bg-[#0D1523]">Completed</option>
+              <option value="blocked" className="bg-[#0D1523]">Blocked</option>
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#0F1626] border border-[#1E2B45] rounded-lg px-2.5 py-1.5">
+          <div className="flex items-center gap-1.5 bg-[#0A1020] border border-[rgba(148,163,184,0.16)] rounded-lg px-2.5 py-1.5">
             <select
               value={selectedChannel}
               onChange={(e) => setSelectedChannel(e.target.value)}
-              className="bg-transparent text-[#F5F7FA] focus:outline-none text-xs cursor-pointer"
+              className="bg-transparent text-[#F5F7FB] focus:outline-none text-xs cursor-pointer"
             >
-              <option value="all" className="bg-[#121A2B]">All Channels</option>
-              <option value="Content & Copy" className="bg-[#121A2B]">Content & Copy</option>
-              <option value="Ambassador Network" className="bg-[#121A2B]">Ambassador Network</option>
-              <option value="Final-Year Class" className="bg-[#121A2B]">Final-Year Class</option>
-              <option value="College Coding Club" className="bg-[#121A2B]">College Coding Club</option>
-              <option value="Analytics & Growth" className="bg-[#121A2B]">Analytics & Growth</option>
-              <option value="Peer Referral" className="bg-[#121A2B]">Peer Referral</option>
+              <option value="all" className="bg-[#0D1523]">All Channels</option>
+              <option value="Content & Copy" className="bg-[#0D1523]">Content & Copy</option>
+              <option value="Ambassador Network" className="bg-[#0D1523]">Ambassador Network</option>
+              <option value="Final-Year Class" className="bg-[#0D1523]">Final-Year Class</option>
+              <option value="College Coding Club" className="bg-[#0D1523]">College Coding Club</option>
+              <option value="Analytics & Growth" className="bg-[#0D1523]">Analytics & Growth</option>
+              <option value="Peer Referral" className="bg-[#0D1523]">Peer Referral</option>
             </select>
           </div>
         </div>
 
-        <span className="text-[#9BA8BB] text-xs">
-          Showing {filteredMissions.length} of {missions.length} sprint missions
+        <span className="text-[#A5B2C5] text-xs">
+          Showing <span className="font-mono">{filteredMissions.length}</span> of <span className="font-mono">{missions.length}</span> sprint missions
         </span>
       </div>
 
       {/* Mission Cards List */}
-      <div className="space-y-3.5">
+      <div className="space-y-3">
         {filteredMissions.length === 0 ? (
-          <div className="p-8 text-center bg-[#121A2B] border border-[#1E2B45] rounded-xl text-[#64748B] text-xs">
+          <div className="p-8 text-center bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl text-[#64748B] text-xs">
             No missions found for the selected filter.
           </div>
         ) : (
@@ -197,12 +210,12 @@ ${missions
             return (
               <div
                 key={mission.id}
-                className={`bg-[#121A2B] border rounded-xl p-5 transition-all shadow-md ${
+                className={`bg-[#0D1523] border rounded-xl p-5 transition-all shadow-sm ${
                   mission.status === "completed"
-                    ? "border-[#1E2B45]/70 opacity-80"
+                    ? "border-[rgba(148,163,184,0.1)] opacity-75"
                     : mission.status === "blocked"
                     ? "border-rose-500/40 bg-rose-500/5"
-                    : "border-[#1E2B45] hover:border-[#2B3A58]"
+                    : "border-[rgba(148,163,184,0.16)] hover:border-[rgba(148,163,184,0.28)]"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -211,14 +224,14 @@ ${missions
                     <button
                       type="button"
                       onClick={() => toggleMissionStatus(mission.id)}
-                      className={`mt-0.5 p-1.5 rounded-lg border transition-colors ${
+                      className={`mt-0.5 p-1.5 rounded-lg border transition-colors cursor-pointer ${
                         mission.status === "completed"
-                          ? "bg-[#B8F56A]/15 border-[#B8F56A]/30 text-[#B8F56A]"
+                          ? "bg-[#C5F56A]/15 border-[#C5F56A]/30 text-[#C5F56A]"
                           : mission.status === "in_progress"
-                          ? "bg-[#51D6C7]/15 border-[#51D6C7]/30 text-[#51D6C7]"
+                          ? "bg-[#4ADFFF]/15 border-[#4ADFFF]/30 text-[#4ADFFF]"
                           : mission.status === "blocked"
                           ? "bg-rose-500/15 border-rose-500/30 text-rose-400"
-                          : "bg-[#182238] border-[#1E2B45] text-[#64748B] hover:text-[#F5F7FA]"
+                          : "bg-[#111C2E] border-[rgba(148,163,184,0.16)] text-[#64748B] hover:text-[#F5F7FB]"
                       }`}
                       title="Click to advance status"
                     >
@@ -226,27 +239,27 @@ ${missions
                     </button>
 
                     <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="text-[10px] font-semibold text-[#51D6C7] bg-[#0F1626] px-2 py-0.5 rounded border border-[#1E2B45]">
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="text-[10px] font-mono font-semibold text-[#4ADFFF] bg-[#0A1020] px-2 py-0.5 rounded border border-[rgba(148,163,184,0.16)]">
                           Day {mission.dueDay}
                         </span>
-                        <span className="text-[10px] text-[#9BA8BB] bg-[#0F1626] px-2 py-0.5 rounded border border-[#1E2B45]">
+                        <span className="text-[10px] text-[#A5B2C5] bg-[#0A1020] px-2 py-0.5 rounded border border-[rgba(148,163,184,0.16)]">
                           {mission.channel}
                         </span>
                         <Badge variant={badge.variant}>{badge.label}</Badge>
                       </div>
 
                       <h3
-                        className={`text-base font-bold tracking-tight ${
+                        className={`font-heading text-base font-semibold tracking-tight ${
                           mission.status === "completed"
-                            ? "line-through text-[#9BA8BB]"
-                            : "text-[#F5F7FA]"
+                            ? "line-through text-[#A5B2C5]"
+                            : "text-[#F5F7FB]"
                         }`}
                       >
                         {mission.title}
                       </h3>
 
-                      <p className="text-xs text-[#9BA8BB] mt-1 leading-relaxed">
+                      <p className="text-xs text-[#A5B2C5] mt-1 leading-relaxed">
                         {mission.description}
                       </p>
                     </div>
@@ -259,14 +272,14 @@ ${missions
                         setEditingMission(mission);
                         setIsModalOpen(true);
                       }}
-                      className="p-1.5 text-[#9BA8BB] hover:text-[#F5F7FA] hover:bg-[#182238] rounded-lg transition-colors"
+                      className="p-1.5 text-[#A5B2C5] hover:text-[#F5F7FB] hover:bg-[#111C2E] rounded-lg transition-colors cursor-pointer"
                       title="Edit Mission"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => setDeletingId(mission.id)}
-                      className="p-1.5 text-[#9BA8BB] hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                      className="p-1.5 text-[#A5B2C5] hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                       title="Delete Mission"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -275,21 +288,21 @@ ${missions
                 </div>
 
                 {/* Meta footer row */}
-                <div className="mt-4 pt-3 border-t border-[#1E2B45]/70 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-[#9BA8BB]">
+                <div className="mt-4 pt-3 border-t border-[rgba(148,163,184,0.12)] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-[#A5B2C5]">
                   <div className="flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-[#64748B]" />
-                    <span>Owner: <strong className="text-[#F5F7FA]">{mission.owner}</strong></span>
+                    <span>Owner: <strong className="text-[#F5F7FB]">{mission.owner}</strong></span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-[#64748B]" />
-                    <span>Effort: <strong className="text-[#F5F7FA]">{mission.effortHours} hrs</strong></span>
+                    <span>Effort: <strong className="font-mono text-[#F5F7FB]">{mission.effortHours} hrs</strong></span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <DollarSign className="w-3.5 h-3.5 text-[#64748B]" />
-                    <span>Cost: <strong className="text-[#51D6C7]">₹{mission.cost}</strong></span>
+                    <span>Cost: <strong className="font-mono text-[#4ADFFF]">₹{mission.cost}</strong></span>
                   </div>
                   <div className="flex items-center gap-1.5 truncate">
-                    <span className="truncate">Metric: <strong className="text-[#B8F56A] truncate">{mission.metric}</strong></span>
+                    <span className="truncate">Metric: <strong className="text-[#C5F56A] truncate font-mono">{mission.metric}</strong></span>
                   </div>
                 </div>
               </div>

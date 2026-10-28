@@ -3,17 +3,13 @@ import {
   AlertTriangle,
   RotateCcw,
   ShieldAlert,
-  ArrowRight,
   TrendingDown,
   Wrench,
   Clock,
   DollarSign,
   HelpCircle,
-  CheckCircle2,
-  Zap,
 } from "lucide-react";
 import { useGrowth } from "../../context/GrowthContext";
-import { Card } from "../common/Card";
 
 export const FAILURE_SCENARIOS = [
   {
@@ -36,8 +32,8 @@ export const FAILURE_SCENARIOS = [
         detail: "Offer ₹50 bonus for every 5 verified batchmate registrations.",
       },
     ],
-    effortRequired: 8, // hours
-    budgetRequired: 400, // INR
+    effortRequired: 8,
+    budgetRequired: 400,
     uncertaintyNote: "Relies on ambassadors having high social capital and active personal connections.",
   },
   {
@@ -168,7 +164,6 @@ export function FailureLabPage() {
     applyFailureScenario,
     resetFailureScenario,
     projections,
-    simulatorParams,
   } = useGrowth();
 
   const activeScenarioData = FAILURE_SCENARIOS.find((s) => s.id === activeFailureScenario);
@@ -176,48 +171,48 @@ export function FailureLabPage() {
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       {/* Header */}
-      <div className="bg-[#121A2B] border border-[#1E2B45] rounded-xl p-5 md:p-6 shadow-md">
+      <div className="bg-[#0D1523] border border-[rgba(148,163,184,0.16)] rounded-xl p-5 md:p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">
-                Distinctive Feature
+              <span className="text-[10px] font-mono font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/25">
+                Stress Test Engine
               </span>
-              <span className="text-xs text-[#9BA8BB]">
+              <span className="text-xs text-[#A5B2C5]">
                 Resilience & Crisis Simulation
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-extrabold text-[#F5F7FA] tracking-tight">
+            <h1 className="font-heading text-xl md:text-2xl font-bold text-[#F5F7FB] tracking-tight">
               Failure Lab
             </h1>
-            <p className="text-xs md:text-sm text-[#9BA8BB] mt-1 max-w-2xl leading-relaxed">
-              Exceptional growth leaders stress-test their plan before launch. Select a failure mode below to shock the simulation, reveal vulnerabilities, and test recovery playbooks.
+            <p className="text-xs md:text-sm text-[#A5B2C5] mt-1 max-w-2xl leading-relaxed">
+              Stress-test the acquisition plan against 6 realistic campus failure modes. Shock the simulation, uncover critical bottlenecks, and deploy instant recovery playbooks.
             </p>
           </div>
 
           {activeFailureScenario && (
             <button
               onClick={resetFailureScenario}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#F5F7FA] bg-[#18253D] hover:bg-[#1E2B45] border border-[#1E2B45] rounded-lg transition-colors self-start md:self-auto"
+              className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#F5F7FB] bg-[#111C2E] hover:bg-[#18253D] border border-[rgba(148,163,184,0.16)] hover:border-[rgba(148,163,184,0.28)] rounded-lg transition-colors self-start md:self-auto cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-[#B8F56A]" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#C5F56A]" />
               <span>Reset to Baseline Strategy</span>
             </button>
           )}
         </div>
 
         {/* Resilience Philosophy banner */}
-        <div className="mt-4 pt-3.5 border-t border-[#1E2B45]/70 flex items-start gap-2 text-xs text-[#9BA8BB]">
+        <div className="mt-4 pt-3.5 border-t border-[rgba(148,163,184,0.12)] flex items-start gap-2 text-xs text-[#A5B2C5]">
           <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
           <span>
-            <strong className="text-[#F5F7FA]">Defensible Growth Philosophy:</strong> Every campaign faces friction—admin blocks, ambassador fatigue, or conversion decay. This lab computes deterministic recovery paths so your 500-registration target remains attainable.
+            <strong className="text-[#F5F7FB]">Resilience Architecture:</strong> Every campus campaign faces unexpected friction. This module computes deterministic recovery paths so the 500-registration target remains achievable.
           </span>
         </div>
       </div>
 
       {/* Scenario Selection Grid (6 presets) */}
       <div>
-        <h2 className="text-xs font-bold text-[#9BA8BB] uppercase tracking-wider mb-3">
+        <h2 className="text-[11px] font-mono font-semibold text-[#A5B2C5] uppercase tracking-wider mb-3">
           Select a Failure Mode to Stress-Test:
         </h2>
 
@@ -235,48 +230,48 @@ export function FailureLabPage() {
                     applyFailureScenario(scenario.id);
                   }
                 }}
-                className={`text-left p-4 rounded-xl border transition-all flex flex-col justify-between ${
+                className={`text-left p-4 rounded-xl border transition-all flex flex-col justify-between cursor-pointer ${
                   isActive
-                    ? "bg-[#182238] border-rose-500 shadow-lg shadow-rose-500/10 ring-1 ring-rose-500/50"
-                    : "bg-[#121A2B] border-[#1E2B45] hover:border-[#2B3A58]"
+                    ? "bg-[#111C2E] border-rose-500/60 shadow-sm ring-1 ring-rose-500/40"
+                    : "bg-[#0D1523] border-[rgba(148,163,184,0.16)] hover:border-[rgba(148,163,184,0.28)] hover:bg-[#111C2E]"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                      className={`text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
                         isActive
-                          ? "bg-rose-500/20 text-rose-300"
-                          : "bg-[#0F1626] text-[#9BA8BB]"
+                          ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                          : "bg-[#0A1020] text-[#A5B2C5] border border-[rgba(148,163,184,0.12)]"
                       }`}
                     >
-                      {isActive ? "Active Shock" : "Failure Preset"}
+                      {isActive ? "Active Shock" : "Failure Scenario"}
                     </span>
                     <AlertTriangle
-                      className={`w-4 h-4 ${
+                      className={`w-3.5 h-3.5 ${
                         isActive ? "text-rose-400 animate-pulse" : "text-[#64748B]"
                       }`}
                     />
                   </div>
 
-                  <h3 className="text-sm font-bold text-[#F5F7FA]">
+                  <h3 className="font-heading text-sm font-bold text-[#F5F7FB]">
                     {scenario.title}
                   </h3>
-                  <p className="text-xs text-[#9BA8BB] mt-1 leading-relaxed">
+                  <p className="text-xs text-[#A5B2C5] mt-1 leading-relaxed">
                     {scenario.tagline}
                   </p>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-[#1E2B45]/60 flex items-center justify-between text-xs">
+                <div className="mt-3 pt-2.5 border-t border-[rgba(148,163,184,0.1)] flex items-center justify-between text-xs">
                   <span className="text-[11px] text-[#64748B]">
                     {isActive ? "Click to deactivate" : "Simulate scenario"}
                   </span>
                   <span
-                    className={`font-semibold flex items-center gap-1 ${
-                      isActive ? "text-rose-400" : "text-[#51D6C7]"
+                    className={`font-semibold text-xs flex items-center gap-1 ${
+                      isActive ? "text-rose-400" : "text-[#4ADFFF]"
                     }`}
                   >
-                    {isActive ? "Shock Active" : "Run Test →"}
+                    {isActive ? "Active" : "Run Test →"}
                   </span>
                 </div>
               </button>
@@ -289,25 +284,25 @@ export function FailureLabPage() {
       {activeScenarioData ? (
         <div className="space-y-6 pt-2">
           {/* Shock impact status panel */}
-          <div className="bg-gradient-to-br from-[#182033] to-[#121A2B] border border-rose-500/50 rounded-xl p-5 md:p-6 shadow-xl">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#1E2B45]">
+          <div className="bg-[#0D1523] border border-rose-500/40 rounded-xl p-5 md:p-6 shadow-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[rgba(148,163,184,0.12)]">
               <div className="flex items-start gap-3">
-                <div className="p-2.5 rounded-xl bg-rose-500/15 text-rose-400 shrink-0">
-                  <TrendingDown className="w-6 h-6" />
+                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-400 shrink-0">
+                  <TrendingDown className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                    <span className="text-[10px] font-mono font-semibold uppercase text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                       Stress Test In Progress
                     </span>
-                    <span className="text-xs text-[#9BA8BB]">
-                      Active Mode: {activeScenarioData.title}
+                    <span className="text-xs text-[#A5B2C5]">
+                      Active Shock: {activeScenarioData.title}
                     </span>
                   </div>
-                  <h2 className="text-lg md:text-xl font-bold text-[#F5F7FA] mt-1">
+                  <h2 className="font-heading text-lg md:text-xl font-bold text-[#F5F7FB] mt-1">
                     Simulated Shock Impact
                   </h2>
-                  <p className="text-xs md:text-sm text-[#9BA8BB] mt-1 max-w-3xl leading-relaxed">
+                  <p className="text-xs md:text-sm text-[#A5B2C5] mt-1 max-w-3xl leading-relaxed">
                     {activeScenarioData.impactDescription}
                   </p>
                 </div>
@@ -315,40 +310,40 @@ export function FailureLabPage() {
 
               {/* Stress Metrics */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center shrink-0">
-                <div className="p-2.5 rounded-lg bg-[#0F1626] border border-[#1E2B45]">
-                  <p className="text-[10px] text-[#64748B] uppercase">Projected Unique</p>
-                  <p className="text-xl font-black text-rose-400">
+                <div className="p-2.5 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.14)]">
+                  <p className="text-[10px] font-mono text-[#64748B] uppercase">Projected Unique</p>
+                  <p className="font-mono text-xl font-bold text-rose-400">
                     {projections.projectedUnique}
                   </p>
-                  <p className="text-[10px] text-[#9BA8BB]">Goal: 500</p>
+                  <p className="text-[10px] text-[#A5B2C5]">Goal: 500</p>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-[#0F1626] border border-[#1E2B45]">
-                  <p className="text-[10px] text-[#64748B] uppercase">Deficit / Gap</p>
-                  <p className="text-xl font-black text-[#FB923C]">
+                <div className="p-2.5 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.14)]">
+                  <p className="text-[10px] font-mono text-[#64748B] uppercase">Deficit / Gap</p>
+                  <p className="font-mono text-xl font-bold text-[#FB923C]">
                     {projections.gap}
                   </p>
-                  <p className="text-[10px] text-[#9BA8BB]">short of target</p>
+                  <p className="text-[10px] text-[#A5B2C5]">short of target</p>
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-[#0F1626] border border-[#1E2B45] col-span-2 sm:col-span-1">
-                  <p className="text-[10px] text-[#64748B] uppercase">Run-Rate Needed</p>
-                  <p className="text-xl font-black text-[#FACC15]">
+                <div className="p-2.5 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.14)] col-span-2 sm:col-span-1">
+                  <p className="text-[10px] font-mono text-[#64748B] uppercase">Run-Rate Needed</p>
+                  <p className="font-mono text-xl font-bold text-[#FB923C]">
                     {projections.dailyRunRateRequired}
                   </p>
-                  <p className="text-[10px] text-[#9BA8BB]">regs / day</p>
+                  <p className="text-[10px] text-[#A5B2C5]">regs / day</p>
                 </div>
               </div>
             </div>
 
             {/* Identified Primary Bottleneck */}
-            <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3">
+            <div className="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-rose-300">
+                <h4 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-rose-300">
                   Critical Bottleneck Identified
                 </h4>
-                <p className="text-xs md:text-sm text-[#F5F7FA] mt-0.5 font-medium leading-relaxed">
+                <p className="text-xs md:text-sm text-[#F5F7FB] mt-0.5 font-medium leading-relaxed">
                   {activeScenarioData.primaryBottleneck}
                 </p>
               </div>
@@ -356,17 +351,17 @@ export function FailureLabPage() {
           </div>
 
           {/* Recovery Playbook */}
-          <div className="bg-[#121A2B] border border-[rgba(81,214,199,0.35)] rounded-xl p-5 md:p-6 shadow-xl space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1E2B45]">
+          <div className="bg-[#0D1523] border border-[#4ADFFF]/30 rounded-xl p-5 md:p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[rgba(148,163,184,0.12)]">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-[#51D6C7]/15 text-[#51D6C7]">
-                  <Wrench className="w-5 h-5" />
+                <div className="p-2 rounded-lg bg-[#4ADFFF]/10 border border-[#4ADFFF]/25 text-[#4ADFFF]">
+                  <Wrench className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base md:text-lg font-bold text-[#F5F7FA]">
+                  <h3 className="font-heading text-base md:text-lg font-bold text-[#F5F7FB]">
                     Crisis Recovery Playbook
                   </h3>
-                  <p className="text-xs text-[#9BA8BB]">
+                  <p className="text-xs text-[#A5B2C5]">
                     Recommended counter-measures to close the {projections.gap} registration deficit
                   </p>
                 </div>
@@ -374,32 +369,32 @@ export function FailureLabPage() {
 
               {/* Trade-off pills */}
               <div className="flex items-center gap-2 text-xs">
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0F1626] border border-[#1E2B45] text-[#9BA8BB]">
-                  <Clock className="w-3.5 h-3.5 text-[#51D6C7]" />
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0A1020] border border-[rgba(148,163,184,0.14)] text-[#A5B2C5]">
+                  <Clock className="w-3.5 h-3.5 text-[#4ADFFF]" />
                   <span>+{activeScenarioData.effortRequired} hrs effort</span>
                 </span>
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0F1626] border border-[#1E2B45] text-[#9BA8BB]">
-                  <DollarSign className="w-3.5 h-3.5 text-[#FACC15]" />
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0A1020] border border-[rgba(148,163,184,0.14)] text-[#A5B2C5]">
+                  <DollarSign className="w-3.5 h-3.5 text-[#FB923C]" />
                   <span>+₹{activeScenarioData.budgetRequired} budget</span>
                 </span>
               </div>
             </div>
 
             {/* Step-by-step action items */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 pt-1">
               {activeScenarioData.recoveryPlan.map((action, idx) => (
                 <div
                   key={idx}
-                  className="p-3.5 rounded-lg bg-[#0F1626] border border-[#1E2B45] flex items-start gap-3"
+                  className="p-3.5 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.12)] flex items-start gap-3"
                 >
-                  <span className="w-6 h-6 rounded-full bg-[#51D6C7]/15 text-[#51D6C7] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-[#4ADFFF]/10 border border-[#4ADFFF]/25 text-[#4ADFFF] flex items-center justify-center font-mono font-bold text-xs shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <div>
-                    <h4 className="text-xs md:text-sm font-bold text-[#F5F7FA]">
+                    <h4 className="font-heading text-xs md:text-sm font-semibold text-[#F5F7FB]">
                       {action.step}
                     </h4>
-                    <p className="text-xs text-[#9BA8BB] mt-1 leading-relaxed">
+                    <p className="text-xs text-[#A5B2C5] mt-1 leading-relaxed">
                       {action.detail}
                     </p>
                   </div>
@@ -408,13 +403,13 @@ export function FailureLabPage() {
             </div>
 
             {/* Uncertainty Analysis */}
-            <div className="p-3.5 rounded-lg bg-[#141E33] border border-[#1E2B45] flex items-start gap-2.5 text-xs">
-              <HelpCircle className="w-4 h-4 text-[#FACC15] shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-lg bg-[#111C2E] border border-[rgba(148,163,184,0.14)] flex items-start gap-2.5 text-xs">
+              <HelpCircle className="w-4 h-4 text-[#FB923C] shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-[#FACC15] block mb-0.5">
+                <span className="font-semibold text-[#FB923C] block mb-0.5">
                   Recommendation Uncertainty & Constraints:
                 </span>
-                <p className="text-[#9BA8BB] leading-relaxed">
+                <p className="text-[#A5B2C5] leading-relaxed">
                   {activeScenarioData.uncertaintyNote}
                 </p>
               </div>
@@ -423,13 +418,13 @@ export function FailureLabPage() {
         </div>
       ) : (
         /* Empty State / Prompt to choose */
-        <div className="p-8 rounded-xl bg-[#121A2B] border border-[#1E2B45] text-center space-y-2">
-          <ShieldAlert className="w-8 h-8 text-[#51D6C7] mx-auto" />
-          <h3 className="text-sm font-bold text-[#F5F7FA]">
+        <div className="p-8 rounded-xl bg-[#0D1523] border border-[rgba(148,163,184,0.16)] text-center space-y-2">
+          <ShieldAlert className="w-8 h-8 text-[#4ADFFF] mx-auto" />
+          <h3 className="font-heading text-sm font-bold text-[#F5F7FB]">
             Strategy Resilience Healthy (Baseline Mode)
           </h3>
-          <p className="text-xs text-[#9BA8BB] max-w-md mx-auto">
-            Click any of the 6 failure scenarios above to test how the acquisition engine responds to adverse campus conditions.
+          <p className="text-xs text-[#A5B2C5] max-w-md mx-auto leading-relaxed">
+            Select any of the 6 failure scenarios above to test how the acquisition engine responds to adverse campus conditions.
           </p>
         </div>
       )}

@@ -99,187 +99,173 @@ export function ExperimentModal({ isOpen, onClose, onSave, initialData }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialData ? "Edit Growth Experiment" : "Create Growth A/B Experiment"}
-      subtitle="Define hypothesis, test variants, sample sizes, and observe conversion lift"
+      title={initialData ? "Edit Growth Experiment" : "Create Growth Experiment"}
+      subtitle="Configure A/B variants, sample sizes, and hypotheses"
       maxWidth="max-w-xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs md:text-sm">
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
+          <label className="block font-medium text-[#F5F7FB] mb-1">
             Experiment Title *
           </label>
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="e.g. Outcome Framing vs Technical Jargon"
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+            placeholder="e.g. WhatsApp Hook: Resume Differentiation vs Free Workshop"
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm transition-colors"
           />
           {errors.name && <p className="text-rose-400 text-xs mt-1">{errors.name}</p>}
         </div>
 
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
+          <label className="block font-medium text-[#F5F7FB] mb-1">
             Test Hypothesis *
           </label>
           <textarea
             rows={2}
             value={formData.hypothesis}
             onChange={(e) => setFormData({ ...formData, hypothesis: e.target.value })}
-            placeholder="e.g. If we frame the workshop around building a resume project, conversions will lift by >30%..."
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm resize-none"
+            placeholder="We believe that leading with tangible GitHub resume commits will increase conversion by >25%..."
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm resize-none"
           />
           {errors.hypothesis && <p className="text-rose-400 text-xs mt-1">{errors.hypothesis}</p>}
         </div>
 
-        {/* Variants A & B */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Variant A (Control) *
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Variant A (Control Copy / Hook) *
             </label>
             <textarea
               rows={2}
               value={formData.variantA}
               onChange={(e) => setFormData({ ...formData, variantA: e.target.value })}
-              placeholder="e.g. Standard 'Join free workshop' copy"
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm resize-none"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm resize-none"
             />
             {errors.variantA && <p className="text-rose-400 text-xs mt-1">{errors.variantA}</p>}
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Variant B (Treatment) *
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Variant B (Treatment Copy / Hook) *
             </label>
             <textarea
               rows={2}
               value={formData.variantB}
               onChange={(e) => setFormData({ ...formData, variantB: e.target.value })}
-              placeholder="e.g. Outcome-oriented 'Build project for resume' copy"
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm resize-none"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm resize-none"
             />
             {errors.variantB && <p className="text-rose-400 text-xs mt-1">{errors.variantB}</p>}
           </div>
         </div>
 
-        {/* Sample size & Conversions data */}
-        <div className="p-3.5 rounded-lg bg-[#0F1626] border border-[#1E2B45] space-y-3">
-          <p className="font-semibold text-[#51D6C7] text-xs">Test Observation Metrics:</p>
-
+        {/* Numbers grid for A */}
+        <div className="p-3 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.14)] space-y-2">
+          <p className="font-mono text-xs font-semibold text-[#A5B2C5]">Control (Variant A) Metrics</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] text-[#9BA8BB] mb-1">
-                Variant A: Sample Size
-              </label>
+              <label className="block text-[11px] text-[#A5B2C5] mb-1">Sample Size</label>
               <input
                 type="number"
-                min="0"
                 value={formData.sampleSizeA}
                 onChange={(e) => setFormData({ ...formData, sampleSizeA: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded bg-[#121A2B] border border-[#1E2B45] text-[#F5F7FA] text-xs"
+                className="w-full px-3 py-1.5 rounded-lg bg-[#111C2E] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A]"
               />
             </div>
             <div>
-              <label className="block text-[11px] text-[#9BA8BB] mb-1">
-                Variant A: Conversions
-              </label>
+              <label className="block text-[11px] text-[#A5B2C5] mb-1">Conversions</label>
               <input
                 type="number"
-                min="0"
                 value={formData.conversionsA}
                 onChange={(e) => setFormData({ ...formData, conversionsA: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded bg-[#121A2B] border border-[#1E2B45] text-[#F5F7FA] text-xs"
+                className="w-full px-3 py-1.5 rounded-lg bg-[#111C2E] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A]"
               />
-              {errors.conversionsA && <p className="text-rose-400 text-[10px] mt-0.5">{errors.conversionsA}</p>}
             </div>
           </div>
+        </div>
 
+        {/* Numbers grid for B */}
+        <div className="p-3 rounded-lg bg-[#0A1020] border border-[#C5F56A]/25 space-y-2">
+          <p className="font-mono text-xs font-semibold text-[#C5F56A]">Treatment (Variant B) Metrics</p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] text-[#9BA8BB] mb-1">
-                Variant B: Sample Size
-              </label>
+              <label className="block text-[11px] text-[#A5B2C5] mb-1">Sample Size</label>
               <input
                 type="number"
-                min="0"
                 value={formData.sampleSizeB}
                 onChange={(e) => setFormData({ ...formData, sampleSizeB: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded bg-[#121A2B] border border-[#1E2B45] text-[#F5F7FA] text-xs"
+                className="w-full px-3 py-1.5 rounded-lg bg-[#111C2E] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A]"
               />
             </div>
             <div>
-              <label className="block text-[11px] text-[#9BA8BB] mb-1">
-                Variant B: Conversions
-              </label>
+              <label className="block text-[11px] text-[#A5B2C5] mb-1">Conversions</label>
               <input
                 type="number"
-                min="0"
                 value={formData.conversionsB}
                 onChange={(e) => setFormData({ ...formData, conversionsB: e.target.value })}
-                className="w-full px-2.5 py-1.5 rounded bg-[#121A2B] border border-[#1E2B45] text-[#F5F7FA] text-xs"
+                className="w-full px-3 py-1.5 rounded-lg bg-[#111C2E] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] font-mono focus:outline-none focus:border-[#C5F56A]"
               />
-              {errors.conversionsB && <p className="text-rose-400 text-[10px] mt-0.5">{errors.conversionsB}</p>}
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
-              Status
+            <label className="block font-medium text-[#F5F7FB] mb-1">
+              Test Status
             </label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm cursor-pointer"
             >
-              <option value="draft">Draft / Planning</option>
-              <option value="running">Running / Live Test</option>
-              <option value="completed">Completed</option>
+              <option value="draft" className="bg-[#0D1523]">Draft (Proposed)</option>
+              <option value="running" className="bg-[#0D1523]">Running</option>
+              <option value="completed" className="bg-[#0D1523]">Completed</option>
             </select>
           </div>
 
           <div>
-            <label className="block font-medium text-[#F5F7FA] mb-1">
+            <label className="block font-medium text-[#F5F7FB] mb-1">
               Target Audience
             </label>
             <input
               type="text"
               value={formData.audience}
               onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-              placeholder="e.g. 500 final-year CS students"
-              className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm"
+              placeholder="e.g. Placement prep groups"
+              className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
             />
           </div>
         </div>
 
         <div>
-          <label className="block font-medium text-[#F5F7FA] mb-1">
-            Observed Interpretation / Next Action
+          <label className="block font-medium text-[#F5F7FB] mb-1">
+            Action Taken / Implementation Notes
           </label>
-          <textarea
-            rows={2}
+          <input
+            type="text"
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            placeholder="Document takeaways and which variant to deploy at scale..."
-            className="w-full px-3 py-2 rounded-lg bg-[#0F1626] border border-[#1E2B45] text-[#F5F7FA] focus:outline-none focus:border-[#B8F56A] text-xs md:text-sm resize-none"
+            placeholder="e.g. Rolled out Variant B copy to all coding club circulars"
+            className="w-full px-3 py-2 rounded-lg bg-[#0A1020] border border-[rgba(148,163,184,0.18)] text-[#F5F7FB] focus:outline-none focus:border-[#C5F56A] text-xs md:text-sm"
           />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#1E2B45]">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[rgba(148,163,184,0.16)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-[#9BA8BB] hover:text-white bg-[#182238] hover:bg-[#1E2B45] rounded-lg transition-colors"
+            className="px-4 py-2 text-xs md:text-sm font-medium text-[#A5B2C5] hover:text-[#F5F7FB] bg-[#111C2E] hover:bg-[#18253D] border border-[rgba(148,163,184,0.16)] rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-2 text-xs font-bold text-[#0B1020] bg-[#B8F56A] hover:bg-[#a5dc5f] rounded-lg shadow-sm transition-colors"
+            className="px-4 py-2 text-xs md:text-sm font-semibold text-[#070B14] bg-[#C5F56A] hover:bg-[#b8ea5e] rounded-lg transition-colors cursor-pointer"
           >
-            {initialData ? "Save Experiment" : "Create Experiment"}
+            {initialData ? "Save Changes" : "Create Experiment"}
           </button>
         </div>
       </form>
