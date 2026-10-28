@@ -1,8 +1,8 @@
 import React from "react";
-import { Menu, UserCheck, Trophy, AlertCircle } from "lucide-react";
+import { Menu, UserCheck, Trophy, AlertCircle, QrCode } from "lucide-react";
 import { useGrowth } from "../../context/GrowthContext";
 
-export function Navbar({ onToggleSidebar, onSelectTab, onOpenLeaderboard }) {
+export function Navbar({ onToggleSidebar, onSelectTab, onOpenLeaderboard, onOpenQr }) {
   const { campaignSettings, projections, actualRegistrations, activeFailureScenario } = useGrowth();
   const actualCount = actualRegistrations.length;
 
@@ -52,6 +52,16 @@ export function Navbar({ onToggleSidebar, onSelectTab, onOpenLeaderboard }) {
               <span className="font-mono font-bold text-[#C5F56A]">{projections.projectedUnique}</span>
             </div>
           </div>
+
+          {/* QR Code CTA */}
+          <button
+            onClick={onOpenQr}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#A5B2C5] hover:text-[#C5F56A] bg-[#0D1523] hover:bg-[#111C2E] border border-[rgba(148,163,184,0.16)] hover:border-[#C5F56A]/30 rounded-lg transition-colors cursor-pointer"
+            title="Scan QR Code / Mobile Link"
+          >
+            <QrCode className="w-3.5 h-3.5 text-[#C5F56A]" />
+            <span className="hidden sm:inline">QR Code</span>
+          </button>
 
           {/* Ambassador Leaderboard CTA */}
           <button

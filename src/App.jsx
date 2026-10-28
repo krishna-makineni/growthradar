@@ -11,6 +11,7 @@ import { FailureLabPage } from "./components/failure/FailureLabPage";
 import { CopilotPage } from "./components/copilot/CopilotPage";
 import { RegistrationPage } from "./components/register/RegistrationPage";
 import { LeaderboardModal } from "./components/register/LeaderboardModal";
+import { QrCodeModal } from "./components/common/QrCodeModal";
 import { ConfirmDialog } from "./components/common/Modal";
 
 function MainApp() {
@@ -43,6 +44,7 @@ function MainApp() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   // Sync tab changes to URL hash for shareable links
@@ -84,6 +86,7 @@ function MainApp() {
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
           onSelectTab={handleSelectTab}
           onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
+          onOpenQr={() => setIsQrModalOpen(true)}
         />
 
         {/* Dynamic Page View Body */}
@@ -104,9 +107,18 @@ function MainApp() {
             <p>
               <strong className="text-[#A5B2C5]">Campus Growth Radar</strong> — Built for NxtWave Growth Intern Challenge.
             </p>
-            <p className="text-[11px] font-mono text-[#64748B]">
-              Workshop: “Build Your First AI Project in 60 Minutes” • 500 Unique Target • ₹2,000 Budget
-            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsQrModalOpen(true)}
+                className="text-[11px] font-mono text-[#C5F56A] hover:underline cursor-pointer"
+              >
+                Scan Mobile QR
+              </button>
+              <span className="text-[#64748B]">•</span>
+              <p className="text-[11px] font-mono text-[#64748B]">
+                Workshop: “Build Your First AI Project in 60 Minutes” • 500 Unique Target • ₹2,000 Budget
+              </p>
+            </div>
           </div>
         </footer>
       </div>
@@ -115,6 +127,12 @@ function MainApp() {
       <LeaderboardModal
         isOpen={isLeaderboardOpen}
         onClose={() => setIsLeaderboardOpen(false)}
+      />
+
+      {/* QR Code Modal for Live Mobile Experience */}
+      <QrCodeModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
       />
 
       {/* Global Reset Demo Data Confirmation Dialog */}
